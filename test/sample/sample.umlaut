@@ -1,0 +1,108 @@
+// aggregation mandatory (child can exist independently) client: Client
+// aggregation optional (child can exist independently) client: Client?
+// composition mandatory (child cannot exist - if Client is removed, project is removed) client: Client*
+// composition optional (child cannot exist - if Client is removed, project is removed) client: Client?* or Client*?
+
+type Project {
+  id: String
+  name: String
+  client: Client?
+  sprints: [Sprint][0..n]
+}
+
+type Client {
+  -id: String
+  +name: String
+  projects: [Project][0..n]
+}
+
+interface Ticket {
+  title: String
+  body: String?
+  attachments: [Attachment][0..n]
+  observers: [User][0..n]
+  priority: Integer
+  project: Project
+  tags: [Tag][0..n]
+  module: Module?
+}
+
+type EpicTicket : Ticket {
+  id: String
+  children: [ActionableTicket][0..n]
+}
+
+type ActionableTicket : Ticket Other {
+  id: String
+  assignee: User?
+  severity: Severity?
+  sprint: Sprint?
+  type: ActionableTicketType
+  stage: Stage?
+  build: Build?
+  parent: EpicTicket?
+}
+
+type Build {
+  id: String
+  name: String
+  project: Project
+}
+
+type Module {
+  id: String
+  name: String
+  project: Project
+}
+
+enum Severity {
+  P0 P1 P2 P3 P4 P5
+}
+
+type Tag {
+  id: String
+  project: Project
+  name: String
+}
+
+enum ActionableTicketType {
+  Feature Bug ChangeOrder Task
+}
+
+enum Stage {
+  TODO
+  InDevelopment
+  InReview
+  ReadyForQADeployment
+  DeployedToQA // How to deploy to a certain version
+  InQA
+  ReadyForDeployment
+  Deployed // How to deploy a certain version
+}
+
+type Sprint {
+  id: String
+  name: String
+  startDate: DateTime?
+  endDate: DateTime?
+  order: Integer
+  project: Project
+}
+
+type User {
+  id: String
+  name: String
+}
+
+type Attachment {
+  id: String
+  name: String
+  path: String
+}
+
+diagram ForClient {
+  (Client Project)
+  (Ticket EpicTicket ActionableTicket)
+  (User Attachment)
+}
+

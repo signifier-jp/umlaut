@@ -1,0 +1,52 @@
+<document> ::= statement*
+
+(* general language features*)
+spacer ::= ignore+
+ignored ::= ignore*
+ignore ::= unicode-BOM | white-space | new-line | comment
+unicode-BOM ::= "\uFEFF"
+white-space ::= #"[\x{9}\x{20}]"
+block-start ::= <ignored> <"{">
+block-end ::= <ignored> <"}">
+group-start ::= <ignored> <"(">
+group-end ::= <ignored> <")">
+new-line ::= #"\n"
+comment-char ::= "//"
+comment ::= comment-char value <new-line>
+<identifier> ::= #"[_A-Za-z][_0-9A-Za-z]*"
+value ::= #"[\d\t\w <\(\[\{\\\^\-:,;'\"%$#@&#=\$!\|\]\}\)\?\*\+\.>]+"
+
+(* high-level section *)
+<statement> ::= <ignored> | type* | enum* | interface* | diagram*
+
+(* class statement *)
+type ::= <"type"> <spacer> identifier parent-set? attribute-block
+<attribute-block> ::= <block-start> attribute+ <block-end>
+attribute ::= <ignored> qualifier? identifier <ignored> <":"> <ignored> kind
+from ::= #"[0-9]+"
+to ::= #"[0-9]+" | "n"
+<arity> ::= <"["> from (<".."> to) <"]">
+collection ::= <"["> identifier <"]"> [arity]
+single ::= identifier
+<kind> ::= (collection | single) (optional* | composition*)
+<qualifier> ::= private | public
+private ::= <"-">
+public ::= <"+">
+optional ::= <"?">
+composition ::= <"*">
+<parent-set> ::= <ignored> <":"> <ignored> parent*
+parent ::= <ignored> identifier
+
+(* interface statement *)
+interface ::= <"interface"> <spacer> identifier attribute-block
+
+(* enum statement *)
+enum ::= <"enum"> <spacer> identifier enum-block
+<enum-block> ::= <block-start> enum-entry+ <block-end>
+<enum-entry> ::= <ignored> identifier
+
+(* diagram statement *)
+diagram ::= <"diagram"> <spacer> identifier diagram-block
+<diagram-block> ::= <block-start> diagram-group+ <block-end>
+diagram-group ::= <group-start> diagram-entry+ <group-end>
+<diagram-entry> ::= <ignored> identifier
