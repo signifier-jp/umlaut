@@ -1,46 +1,41 @@
-// aggregation mandatory (child can exist independently) client: Client
-// aggregation optional (child can exist independently) client: Client?
-// composition mandatory (child cannot exist - if Client is removed, project is removed) client: Client*
-// composition optional (child cannot exist - if Client is removed, project is removed) client: Client?* or Client*?
-
 type Project {
   id: String
   name: String
-  client: Client?
-  sprints: [Sprint][0..n]
+  client: Client[0..1]
+  sprints: Sprint[0..n]
 }
 
 type Client {
-  -id: String
-  +name: String
-  projects: [Project][0..n]
+  id: String
+  name: String
+  projects: Project[0..n]
 }
 
 interface Ticket {
   title: String
-  body: String?
-  attachments: [Attachment][0..n]
-  observers: [User][0..n]
+  body: String[0..1]
+  attachments: Attachment[0..n]
+  observers: User[0..n]
   priority: Integer
   project: Project
-  tags: [Tag][0..n]
-  module: Module?
+  tags: Tag[0..n]
+  module: Module[0..1]
 }
 
 type EpicTicket : Ticket {
   id: String
-  children: [ActionableTicket][0..n]
+  children: ActionableTicket[0..n]
 }
 
 type ActionableTicket : Ticket Other {
   id: String
-  assignee: User?
-  severity: Severity?
-  sprint: Sprint?
+  assignee: User[0..1]
+  severity: Severity[0..1]
+  sprint: Sprint[0..1]
   type: ActionableTicketType
-  stage: Stage?
-  build: Build?
-  parent: EpicTicket?
+  stage: Stage[0..1]
+  build: Build[0..1]
+  parent: EpicTicket[0..1]
 }
 
 type Build {
@@ -83,8 +78,8 @@ enum Stage {
 type Sprint {
   id: String
   name: String
-  startDate: DateTime?
-  endDate: DateTime?
+  startDate: DateTime[0..1]
+  endDate: DateTime[0..1]
   order: Integer
   project: Project
 }

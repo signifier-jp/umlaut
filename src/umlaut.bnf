@@ -22,18 +22,10 @@ value ::= #"[\d\t\w <\(\[\{\\\^\-:,;'\"%$#@&#=\$!\|\]\}\)\?\*\+\.>]+"
 (* class statement *)
 type ::= <"type"> <spacer> identifier parent-set? attribute-block
 <attribute-block> ::= <block-start> attribute+ <block-end>
-attribute ::= <ignored> qualifier? identifier <ignored> <":"> <ignored> kind
-from ::= #"[0-9]+"
-to ::= #"[0-9]+" | "n"
-<arity> ::= <"["> from (<".."> to) <"]">
-collection ::= <"["> identifier <"]"> [arity]
-single ::= identifier
-<kind> ::= (collection | single) (optional* | composition*)
-<qualifier> ::= private | public
-private ::= <"-">
-public ::= <"+">
-optional ::= <"?">
-composition ::= <"*">
+attribute ::= <ignored> identifier <ignored> <":"> <ignored> kind
+arity-value ::= #"[0-9]+" | "n"
+<arity> ::= <"["> arity-value (<".."> arity-value) <"]">
+kind ::= identifier arity?
 <parent-set> ::= <ignored> <":"> <ignored> parent*
 parent ::= <ignored> identifier
 
