@@ -7,4 +7,7 @@
                  [instaparse "1.4.5"]]
   :main ^:skip-aot umlaut.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}
+             :dev {
+                   :dependencies
+                   [[org.clojure/test.check "0.9.0"]]}})

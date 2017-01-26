@@ -16,6 +16,7 @@
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.4" level="project" />
     <orderEntry type="library" name="Leiningen: instaparse:1.4.5" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.9.0-alpha14" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/test.check:0.9.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.nrepl:0.2.12" level="project" />
   </component>
 </module>
