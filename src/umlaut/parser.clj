@@ -15,8 +15,8 @@
     2 (vec args)))
 
 (defn- to-enum
-  [id & args] {:enum {:id id
-                      :values args}})
+  [id & args] [:enum {:id id
+                      :values args}])
 
 (defn- to-kind
   [id & args] {:type-id id
@@ -39,13 +39,13 @@
 (defn- abstract-to-type
   [type] (fn
            [id & args]
-           {type {:id id
-                  :attributes (filter-relationsip-type :attribute args)
-                  :parents (filter-relationsip-type :parent args)}}))
+           [type {:id id
+                 :attributes (filter-relationsip-type :attribute args)
+                 :parents (filter-relationsip-type :parent args)}]))
 
 (defn- to-diagram
-  [id & args] {:diagram {:id id
-                         :groups (vec args)}})
+  [id & args] [:diagram {:id id
+                         :groups (vec args)}])
 
 (defn- to-diagram-group
   [& args] (vec args))

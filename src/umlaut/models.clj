@@ -19,6 +19,11 @@
                    (fn [[from to]] (if (not= "n" to) (>= to from) true)))
                  arity-generator))
 
+(defn- create-type-id [type-id def-name]
+  (fn [] (s/with-gen
+           (s/def def-name #(= type-id %))
+           #(gen/fmap (fn [& _] type-id)))))
+
 (s/def ::attribute (s/keys :req-un [::id ::type-id ::arity]))
 (s/def ::attributes (s/coll-of ::attribute :distinct true :into []))
 
@@ -26,19 +31,23 @@
 (s/def ::parents (s/coll-of ::parent :distinct true :into []))
 
 (s/def ::type (s/keys :req-un [::id ::attributes ::parents]))
-(s/def ::type-obj (s/keys :req-un [::type]))
+(s/def ::type-kw (s/with-gen #(= :type %) #(s/gen #{:type})))
+(s/def ::type-obj (s/tuple ::type-kw ::type))
 
 (s/def ::interface (s/keys :req-un [::id ::attributes ::parents]))
-(s/def ::interface-obj (s/keys :req-un [::interface]))
+(s/def ::interface-kw (s/with-gen #(= :interface %) #(s/gen #{:type})))
+(s/def ::interface-obj (s/tuple ::interface-kw ::interface))
 
 (s/def ::values (s/coll-of string? :distinct true :into '()))
 (s/def ::enum (s/keys :req-un [::id ::values]))
-(s/def ::enum-obj (s/keys :req-un [::enum]))
+(s/def ::enum-kw (s/with-gen #(= :enum %) #(s/gen #{:enum})))
+(s/def ::enum-obj (s/tuple ::enum-kw ::enum))
 
 (s/def ::group (s/coll-of string? :kind vector? :distinct true :into []))
 (s/def ::groups (s/coll-of ::group :distinct true :into []))
 (s/def ::diagram (s/keys :req-un [::id ::groups]))
-(s/def ::diagram-obj (s/keys :req-un [::diagram]))
+(s/def ::diagram-kw (s/with-gen #(= :diagram %) #(s/gen #{:diagram})))
+(s/def ::diagram-obj (s/tuple ::diagram-kw ::diagram))
 
 (s/def ::obj (s/or :enum ::enum-obj :type ::type-obj :interface ::interface-obj :diagram ::diagram-obj))
 (s/def ::objs (s/coll-of ::obj :into '()))

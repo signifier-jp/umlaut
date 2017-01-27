@@ -22,12 +22,46 @@
   [type-obj]
   (str "\"{" (:id type-obj) "|" (attributes-list type-obj) "}\""))
 
-(defn generate
+
+(defmulti node-str (fn [[type-id _]] type-id))
+
+(defmethod node-str :type
+  [[_ type-obj]]
+  (str (:id type-obj) " [ label = " (attributes-label type-obj) " ]"))
+
+(defmethod node-str :interface
+  [[_ type-obj]] (node-str [:type type-obj]))
+
+(defmethod node-str :enum
+  [[_ type-obj]] "")
+
+(defmethod node-str :diagram
+  [[_ type-obj]] "")
+
+(defn- namespace-id [[namespace-path _]]
+  (second (re-matches #".*\/(.+)\.umlaut$" namespace-path)))
+
+
+(defn- gen-nodes-from-namespace
+  [namespace]
+  (let [namespace-coll (second namespace)]
+    (reduce (fn [a x] (str a (node-str x) "\n")) "" namespace-coll)))
+
+(defn gen-nodes
   [namespaces]
-  (println (attributes-label (:type (first (second (first namespaces))))))
-  (spit "testeeee.dot" (str header footer)))
+  (reduce (fn [a namespace]
+            (str "subgraph "
+                 (namespace-id namespace) "{ label = \"" (namespace-id namespace) "\"\n"
+                 (str a (gen-nodes-from-namespace namespace))
+                 "}"))
+          "" namespaces))
 
 
 
+(defn gen-all
+  [namespaces]
+  (str header (gen-nodes namespaces) footer))
 
-(umlaut.generators.dot/generate (umlaut.core/-main "test/sample"))
+
+(def g (gen-all (umlaut.core/-main "test/sample")))
+(println g)
