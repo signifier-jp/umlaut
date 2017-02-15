@@ -8,9 +8,15 @@
 
 (def footer (slurp (io/resource "templates/footer.dot")))
 
+
+
+
 (defn- arity-label
   [[from to]]
   (if (= from to) (str "[" from "]") (str "[" from ".." to "]")))
+
+(defn- namespace-id [[namespace-path _]]
+  (second (re-matches #".*\/(.+)\.umlaut$" namespace-path)))
 
 (defn- attributes-list
   [{:keys [attributes]}]
@@ -18,50 +24,66 @@
                 (arity-label (:arity %2)) "\\l")
           "" attributes))
 
-(defn- attributes-label
-  [type-obj]
-  (str "\"{" (:id type-obj) "|" (attributes-list type-obj) "}\""))
+(defn- values-list
+  [{:keys [values]}]
+  (reduce #(str %1 "+ " %2 "\\l")
+          "" values))
 
 
-(defmulti node-str (fn [[type-id _]] type-id))
+(defn- node-label
+  [kind type-obj]
+  (case kind
+    :type (str "\"{"
+               (:id type-obj) "|" (attributes-list type-obj) "}\"")
+    :interface (str "\"{<<interface>>\n"
+                    (:id type-obj) "|" (attributes-list type-obj) "}\"")
+    :enum (str "\"{<<enum>>\n"
+               (:id type-obj) "|" (values-list type-obj) "}\"")
+    ""))
 
-(defmethod node-str :type
-  [[_ type-obj]]
-  (str (:id type-obj) " [ label = " (attributes-label type-obj) " ]"))
+(defn- node-str
+  [[kind type-obj]]
+  (str (:id type-obj)
+       " [ label = "
+       (node-label kind type-obj)
+       " ]"))
 
-(defmethod node-str :interface
-  [[_ type-obj]] (node-str [:type type-obj]))
-
-(defmethod node-str :enum
-  [[_ type-obj]] "")
-
-(defmethod node-str :diagram
-  [[_ type-obj]] "")
-
-(defn- namespace-id [[namespace-path _]]
-  (second (re-matches #".*\/(.+)\.umlaut$" namespace-path)))
 
 
 (defn- gen-nodes-from-namespace
   [namespace]
-  (let [namespace-coll (second namespace)]
-    (reduce (fn [a x] (str a (node-str x) "\n")) "" namespace-coll)))
+  (->> (second namespace)
+       (reduce (fn [a x] (str a (node-str x) "\n")) "")))
 
 (defn gen-nodes
   [namespaces]
-  (reduce (fn [a namespace]
-            (str "subgraph "
-                 (namespace-id namespace) "{ label = \"" (namespace-id namespace) "\"\n"
-                 (str a (gen-nodes-from-namespace namespace))
-                 "}"))
-          "" namespaces))
+  (let [ns-id (namespace-id namespace)]
+    (reduce (fn [a namespace]
+              (str "subgraph "
+                   ns-id
+                   " { label = \""
+                   ns-id
+                   "\"\n"
+                   (str a (gen-nodes-from-namespace namespace))
+                   "}"))
+            "" namespaces)))
 
+(defn gen-edges
+  [namespaces]
+  (reduce (fn [a namespace]
+            (str a (gen-)))))
 
 
 (defn gen-all
   [namespaces]
-  (str header (gen-nodes namespaces) footer))
+  (str header
+       (gen-nodes namespaces)
+       (gen-edges namespaces)
+       footer))
 
 
 (def g (gen-all (umlaut.core/-main "test/sample")))
+
 (println g)
+
+(umlaut.core/-main "test/sample")

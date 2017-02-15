@@ -49,6 +49,9 @@
 (s/def ::diagram-kw (s/with-gen #(= :diagram %) #(s/gen #{:diagram})))
 (s/def ::diagram-obj (s/tuple ::diagram-kw ::diagram))
 
-(s/def ::obj (s/or :enum ::enum-obj :type ::type-obj :interface ::interface-obj :diagram ::diagram-obj))
+(s/def ::obj (s/or :enum ::enum-obj
+                   :type ::type-obj
+                   :interface ::interface-obj
+                   :diagram ::diagram-obj))
 (s/def ::objs (s/coll-of ::obj :into '()))
 (s/def ::namespaces (s/map-of string? ::objs))
