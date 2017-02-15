@@ -65,7 +65,9 @@ enum ActionableTicketType {
 }
 
 enum Stage {
-  TODO
+  Icebox
+  DocumentationOnGoing
+  ReadyForDevelopment
   InDevelopment
   InReview
   ReadyForQADeployment
