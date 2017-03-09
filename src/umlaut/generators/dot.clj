@@ -4,11 +4,10 @@
             [clojure.spec :as s]
             [clojure.spec.test :as stest]))
 
+
 (def header (slurp (io/resource "templates/header.dot")))
 
 (def footer (slurp (io/resource "templates/footer.dot")))
-
-
 
 
 (defn- arity-label
@@ -57,8 +56,8 @@
 
 (defn gen-nodes
   [namespaces]
-  (let [ns-id (namespace-id namespace)]
-    (reduce (fn [a namespace]
+  (reduce (fn [a namespace]
+            (let [ns-id (namespace-id namespace)]
               (str "subgraph "
                    ns-id
                    " { label = \""
@@ -66,19 +65,24 @@
                    "\"\n"
                    (str a (gen-nodes-from-namespace namespace))
                    "}"))
-            "" namespaces)))
+            )
+          "" namespaces))
+
+(defn- gen-edges-from-namespace
+  [namespace]
+  "")
 
 (defn gen-edges
   [namespaces]
   (reduce (fn [a namespace]
-            (str a (gen-)))))
-
+            (str a (gen-edges-from-namespace namespace)))
+          "" namespaces))
 
 (defn gen-all
   [namespaces]
   (str header
        (gen-nodes namespaces)
-       (gen-edges namespaces)
+       ;; (gen-edges namespaces)
        footer))
 
 
