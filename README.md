@@ -1,10 +1,10 @@
 # umlaut
 
-FIXME: description
+A Clojure program that receives a DML and outputs model files.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+Download from https://github.com/workco/umlaut
 
 ## Usage
 

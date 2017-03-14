@@ -27,7 +27,7 @@ type EpicTicket : Ticket {
   children: ActionableTicket[0..n]
 }
 
-type ActionableTicket : Ticket Other {
+type ActionableTicket : Ticket {
   id: String
   assignee: User[0..1]
   severity: Severity[0..1]
@@ -95,11 +95,5 @@ type Attachment {
   id: String
   name: String
   path: String
-}
-
-diagram ForClient {
-  (Client Project)
-  (Ticket EpicTicket ActionableTicket)
-  (User Attachment)
 }
 

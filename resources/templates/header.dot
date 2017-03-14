@@ -11,5 +11,5 @@ digraph G {
   edge [
     fontname = "Bitstream Vera Sans"
     fontsize = 8
-    arrowhead = "none"
+    arrowhead = "open"
   ]

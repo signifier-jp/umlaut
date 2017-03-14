@@ -1,3 +1,7 @@
+### Project
+/output
+
+### Clojure ###
 /target
 /classes
 /checkouts
@@ -7,7 +11,22 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
+/lib/
+.lein-deps-sum
+.lein-repl-history
+.lein-plugins/
+.lein-failures
+.nrepl-port
+
+### IDE
+.idea/
+
+### Mercurial
 .hgignore
 .hg/
-.idea/
+
+
+### OS
+.DS_Store
+
 

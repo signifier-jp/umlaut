@@ -30,4 +30,3 @@
 (s/explain ::model/namespaces m)
 
 
-(println "23")
