@@ -26,8 +26,6 @@
 (stest/instrument `-main)
 
 (def m (-main "test/sample"))
+
 (s/valid? ::model/namespaces m)
 (s/explain ::model/namespaces m)
-
-
-(println "23")

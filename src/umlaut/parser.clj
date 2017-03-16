@@ -18,6 +18,12 @@
   [id & args] [:enum {:id id
                       :values args}])
 
+(defn- to-annotation
+  [space-1 space-2 attribute value]
+  [:annotation {:space (str space-1 "/" space-2)
+                :attribute attribute
+                :value value}])
+
 (defn- to-kind
   [id & args] {:type-id id
                :arity (normalize-arity args)})
@@ -40,8 +46,8 @@
   [type] (fn
            [id & args]
            [type {:id id
-                 :attributes (filter-relationsip-type :attribute args)
-                 :parents (filter-relationsip-type :parent args)}]))
+                  :attributes (filter-relationsip-type :attribute args)
+                  :parents (filter-relationsip-type :parent args)}]))
 
 (defn- to-diagram
   [id & args] [:diagram {:id id
@@ -51,7 +57,8 @@
   [& args] (vec args))
 
 (defn- transformer
-  [args] (insta/transform {:enum to-enum
+  [args] (insta/transform {:annotation to-annotation
+                           :enum to-enum
                            :arity-value #(if (not= "n" %) (read-string %) %)
                            :kind to-kind
                            :type (abstract-to-type :type)

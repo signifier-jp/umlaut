@@ -5,6 +5,7 @@ type Project {
   sprints: Sprint[0..n]
 }
 
+@lang/graphql qualifier input
 type Client {
   id: String
   name: String
@@ -102,4 +103,3 @@ diagram ForClient {
   (Ticket EpicTicket ActionableTicket)
   (User Attachment)
 }
-
