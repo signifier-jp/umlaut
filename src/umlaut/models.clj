@@ -53,5 +53,5 @@
                    :type ::type-obj
                    :interface ::interface-obj
                    :diagram ::diagram-obj))
-(s/def ::objs (s/coll-of ::obj :into '()))
-(s/def ::namespaces (s/map-of string? ::objs))
+(s/def ::objs (s/map-of string? ::obj))
+(s/def ::namespaces (s/map-of keyword? ::objs))

@@ -97,3 +97,11 @@ type Attachment {
   path: String
 }
 
+diagram DiagramThree {
+  (Ticket Module Tag User)
+}
+
+diagram allTickets {
+  (ActionableTicket)!
+  (Project)!
+}

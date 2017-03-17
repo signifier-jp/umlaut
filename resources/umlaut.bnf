@@ -40,5 +40,5 @@ enum ::= <"enum"> <spacer> identifier enum-block
 (* diagram statement *)
 diagram ::= <"diagram"> <spacer> identifier diagram-block
 <diagram-block> ::= <block-start> diagram-group+ <block-end>
-diagram-group ::= <group-start> diagram-entry+ <group-end>
+diagram-group ::= <group-start> diagram-entry+ <group-end>"!"?
 <diagram-entry> ::= <ignored> identifier

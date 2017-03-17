@@ -26,3 +26,12 @@
   "Extends the key of a map with new values"
   [key new parent]
   (merge (parent key) new))
+
+(defn umlaut-base [nodes diagrams]
+  "Base map structure of the ast data structure"
+  {:nodes nodes :diagrams diagrams})
+
+(defn in?
+  "Whether collection has the element inside"
+  [element collection]
+  (some #(= element %) collection))

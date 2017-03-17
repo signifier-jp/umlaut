@@ -1,6 +1,8 @@
 (ns umlaut.parser
   (:require [clojure.java.io :as io]
-            [instaparse.core :as insta]))
+            [instaparse.core :as insta]
+            [umlaut.utils :as utils]))
+(use '[clojure.pprint :only [pprint]])
 
 (def parser
   (insta/parser
@@ -40,8 +42,8 @@
   [type] (fn
            [id & args]
            [type {:id id
-                 :attributes (filter-relationsip-type :attribute args)
-                 :parents (filter-relationsip-type :parent args)}]))
+                  :attributes (filter-relationsip-type :attribute args)
+                  :parents (filter-relationsip-type :parent args)}]))
 
 (defn- to-diagram
   [id & args] [:diagram {:id id
@@ -50,17 +52,26 @@
 (defn- to-diagram-group
   [& args] (vec args))
 
+(defn- id-list [nodelist]
+  "Given a list of nodes, return a list of all node ids"
+  (map #(get (second %) :id) nodelist))
+
 (defn- transformer
-  [args] (insta/transform {:enum to-enum
-                           :arity-value #(if (not= "n" %) (read-string %) %)
-                           :kind to-kind
-                           :type (abstract-to-type :type)
-                           :parent to-parent
-                           :interface (abstract-to-type :interface)
-                           :attribute to-attribute
-                           :diagram to-diagram
-                           :diagram-group to-diagram-group} args))
+  [args]
+  (let [node-list (insta/transform {:enum to-enum
+                                     :arity-value #(if (not= "n" %) (read-string %) %)
+                                     :kind to-kind
+                                     :type (abstract-to-type :type)
+                                     :parent to-parent
+                                     :interface (abstract-to-type :interface)
+                                     :attribute to-attribute
+                                     :diagram to-diagram
+                                     :diagram-group to-diagram-group} args)]
+      {:nodes (zipmap (id-list (filter utils/not-diagram? node-list)) (filter utils/not-diagram? node-list))
+       :diagrams (zipmap (id-list (filter utils/diagram? node-list)) (filter utils/diagram? node-list))}))
 
 (defn parse
   [content]
   (->> (parser content) transformer))
+
+; (parse (slurp "test/sample/main.umlaut"))
