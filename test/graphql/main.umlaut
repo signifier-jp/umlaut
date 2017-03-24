@@ -1,0 +1,9 @@
+type t2 {
+  id: String
+}
+
+@lang/graphql identifier input
+@lang/java identifier input
+type t1 {
+  id: String
+}

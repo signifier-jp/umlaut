@@ -17,10 +17,20 @@
   [node]
   (= (first node) :diagram))
 
-(defn not-diagram?
-  "Complement of diagram?"
+(defn type?
+  "Whether an AST node is a type node or not"
   [node]
-  (not (diagram? node)))
+  (= (first node) :type))
+
+(defn interface?
+  "Whether an AST node is an interface node or not"
+  [node]
+  (= (first node) :interface))
+
+(defn type-or-interface?
+  "Whether an AST node is an interface node or not"
+  [node]
+  (or (type? node) (interface? node)))
 
 (defn extend-key
   "Extends the key of a map with new values"

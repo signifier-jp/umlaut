@@ -30,7 +30,7 @@
 (defn- to-parent
   [type] {:type-id type :relationship-type :parent})
 
-(defn- filter-relationsip-type
+(defn- filter-relationship-type
   [relationship-id coll]
   (vec (map
          #(dissoc % :relationship-type)
@@ -38,12 +38,20 @@
            #(= relationship-id (:relationship-type %))
            coll))))
 
+(defn- filter-annotations
+  [coll]
+  (vec (map second (filter #(= (first %) :annotation) coll))))
+
 (defn- abstract-to-type
   [type] (fn
-           [id & args]
-           [type {:id id
-                  :attributes (filter-relationsip-type :attribute args)
-                  :parents (filter-relationsip-type :parent args)}]))
+            [id & args]
+            (let [all (conj args id)
+                  id (first (filter string? all))
+                  args (filter #(not (string? %)) args)]
+              [type {:id id
+                      :attributes (filter-relationship-type :attribute all)
+                      :parents (filter-relationship-type :parent all)
+                      :annotations (filter-annotations all)}])))
 
 (defn- to-diagram
   [id & args] [:diagram {:id id
@@ -52,6 +60,12 @@
 (defn- to-diagram-group
   [& args] (vec args))
 
+(defn- to-annotation
+  [space-1 space-2 attribute value]
+  [:annotation {:space (str space-1 "/" space-2)
+                :attribute attribute
+                :value value}])
+
 (defn- id-list [nodelist]
   "Given a list of nodes, return a list of all node ids"
   (map #(get (second %) :id) nodelist))
@@ -59,19 +73,21 @@
 (defn- transformer
   [args]
   (let [node-list (insta/transform {:enum to-enum
-                                     :arity-value #(if (not= "n" %) (read-string %) %)
-                                     :kind to-kind
-                                     :type (abstract-to-type :type)
-                                     :parent to-parent
-                                     :interface (abstract-to-type :interface)
-                                     :attribute to-attribute
-                                     :diagram to-diagram
-                                     :diagram-group to-diagram-group} args)]
-      {:nodes (zipmap (id-list (filter utils/not-diagram? node-list)) (filter utils/not-diagram? node-list))
+                                    :annotation to-annotation
+                                    :arity-value #(if (not= "n" %) (read-string %) %)
+                                    :kind to-kind
+                                    :type (abstract-to-type :type)
+                                    :parent to-parent
+                                    :interface (abstract-to-type :interface)
+                                    :attribute to-attribute
+                                    :diagram to-diagram
+                                    :diagram-group to-diagram-group} args)]
+      {:nodes (zipmap (id-list (filter utils/type-or-interface? node-list)) (filter utils/type-or-interface? node-list))
        :diagrams (zipmap (id-list (filter utils/diagram? node-list)) (filter utils/diagram? node-list))}))
 
 (defn parse
   [content]
   (->> (parser content) transformer))
 
-; (parse (slurp "test/sample/main.umlaut"))
+(pprint (parse (slurp "test/graphql/main.umlaut")))
+

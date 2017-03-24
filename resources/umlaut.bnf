@@ -14,13 +14,17 @@ new-line ::= #"\n"
 comment-char ::= "//"
 comment ::= comment-char value <new-line>
 <identifier> ::= #"[_A-Za-z][_0-9A-Za-z]*"
-value ::= #"[\d\t\w <\(\[\{\\\^\-:,;'\"%$#@&#=\$!\|\]\}\)\?\*\+\.>]+"
+<value> ::= #"[\d\t\w <\(\[\{\\\^\-:,;'\"%$#@&#=\$!\|\]\}\)\?\*\+\.>]+"
 
 (* high-level section *)
 <statement> ::= <ignored> | type* | enum* | interface* | diagram*
 
+(* annotations *)
+<annotation-space> ::= identifier <"/"> identifier
+annotation ::= <"@"> annotation-space <spacer> identifier <spacer> value <spacer>
+
 (* class statement *)
-type ::= <"type"> <spacer> identifier parent-set? attribute-block
+type ::= annotation* <"type"> <spacer> identifier parent-set? attribute-block
 <attribute-block> ::= <block-start> attribute+ <block-end>
 attribute ::= <ignored> identifier <ignored> <":"> <ignored> kind
 arity-value ::= #"[0-9]+" | "n"

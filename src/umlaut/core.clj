@@ -39,5 +39,5 @@
         :ret ::model/namespaces)
 
 (stest/instrument `-main)
-; (pprint (-main "test/sample"))
+(pprint (-main "test/graphql"))
 
