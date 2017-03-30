@@ -66,6 +66,11 @@
         (gen-subgraph-content umlaut)
         "}\n")))
 
+(defn- getGroupSet
+  "Receives a umlaut structure and returns a set with all the boxes that will be drawn"
+  [umlaut]
+  (set (flatten ((second (umlaut :current)) :groups))))
+
 (defn- draw-edge? [node umlaut]
   (when (= ((second (umlaut :current)) :id) "all2"))
   (or
@@ -107,11 +112,6 @@
 (defn- contain-parents? [node]
   "Whether the type inherits from other types or not"
   (and (contains? node :parents) (> (count (get node :parents)) 0)))
-
-(defn- getGroupSet
-  "Receives a umlaut structure and returns a set with all the boxes that will be drawn"
-  [umlaut]
-  (set (flatten ((second (umlaut :current)) :groups))))
 
 (defn gen-edges
   [umlaut]
