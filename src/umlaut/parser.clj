@@ -63,7 +63,7 @@
 (defn- to-annotation
   [space-1 space-2 attribute value]
   [:annotation {:space (str space-1 "/" space-2)
-                :attribute attribute
+                :key attribute
                 :value value}])
 
 (defn- id-list [nodelist]

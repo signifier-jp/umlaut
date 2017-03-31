@@ -30,10 +30,10 @@
 (s/def ::parent (s/keys :req-un [::type-id]))
 (s/def ::parents (s/coll-of ::parent :distinct true :into []))
 
-; (s/def ::annotation (s/keys :req-un [::space ::attribute ::value]))
-; (s/def ::annotations  (s/coll-of ::annotation :distinct true :into []))
+(s/def ::annotation (s/keys :req-un [::space ::key ::value]))
+(s/def ::annotations  (s/coll-of ::annotation :distinct true :into []))
 
-(s/def ::type (s/keys :req-un [::id ::attributes ::parents]))
+(s/def ::type (s/keys :req-un [::id ::attributes ::parents ::annotations]))
 (s/def ::type-kw (s/with-gen #(= :type %) #(s/gen #{:type})))
 (s/def ::type-obj (s/tuple ::type-kw ::type))
 
@@ -60,25 +60,6 @@
 (s/def ::namespaces (s/map-of keyword? ::objs))
 
 
-;
-; (def model {:nodes
-;              {"t2"
-;               [:type
-;                {:id "t2",
-;                 :attributes [{:type-id "String", :arity [1 1], :id "id"}],
-;                 :parents [],
-;                 :annotations []}],
-;               "t1"
-;               [:type
-;                {:id "t1",
-;                 :attributes [{:type-id "String", :arity [1 1], :id "id"}],
-;                 :parents [],
-;                 :annotations
-;                 [{:space "lang/graphql", :attribute "identifier", :value "input"}
-;                  {:space "lang/java", :attribute "identifier", :value "input"}]},]}
-;              :diagrams {}})
-
-
 
 ; (def model {:nodes
 ;              {"t2"
@@ -93,10 +74,11 @@
 ;                 :attributes [{:type-id "String", :arity [1 1], :id "id"}],
 ;                 :parents [],
 ;                 :annotations
-;                 [{:space "lang/graphql", :attribute "identifier", :value "input"}
-;                  {:space "lang/java", :attribute "identifier", :value "input"}]},]}
-;              :diagrams {}})
-;
-;
+;                 [{:space "lang/graphql", :key "identifier", :value "input"}
+;                  {:space "lang/java", :key "identifier", :value "input"}]}]},
+;             :diagrams {}})
+
+
+; 
 ; (println (s/valid? ::namespaces model))
 ; (println (s/explain ::namespaces model))
