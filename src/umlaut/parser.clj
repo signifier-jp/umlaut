@@ -17,15 +17,32 @@
     2 (vec args)))
 
 (defn- to-enum
-  [id & args] [:enum {:id id
-                      :values args}])
+  [id & args]
+  [:enum {:id id :values args}])
 
 (defn- to-kind
-  [id & args] {:type-id id
-               :arity (normalize-arity args)})
+  [id & args] {:type-id id :arity (normalize-arity args)})
 
 (defn- to-attribute
-  [id & args] (assoc (first args) :id id :relationship-type :attribute))
+  [id & args]
+  (assoc (first args)
+    :id id
+    :relationship-type :attribute
+    :required (= (first (last args)) :required)))
+
+(defn- to-method-params [params]
+  (vec params))
+
+(defn- to-return [node]
+  (assoc {} :type-id (second node) :required (= (first (last node)) :required)))
+
+(defn- to-method
+  [id & args]
+  (assoc {}
+    :id id
+    :return (to-return (last args))
+    :params (to-method-params (drop-last args))
+    :relationship-type :method))
 
 (defn- to-parent
   [type] {:type-id type :relationship-type :parent})
@@ -50,6 +67,7 @@
                   args (filter #(not (string? %)) args)]
               [type {:id id
                       :attributes (filter-relationship-type :attribute all)
+                      :methods (filter-relationship-type :method all)
                       :parents (filter-relationship-type :parent all)
                       :annotations (filter-annotations all)}])))
 
@@ -80,9 +98,10 @@
                                     :parent to-parent
                                     :interface (abstract-to-type :interface)
                                     :attribute to-attribute
+                                    :method to-method
                                     :diagram to-diagram
                                     :diagram-group to-diagram-group} args)]
-      {:nodes (zipmap (id-list (filter utils/type-or-interface? node-list)) (filter utils/type-or-interface? node-list))
+      {:nodes (zipmap (id-list (filter utils/type-interface-or-enum? node-list)) (filter utils/type-interface-or-enum? node-list))
        :diagrams (zipmap (id-list (filter utils/diagram? node-list)) (filter utils/diagram? node-list))}))
 
 (defn parse

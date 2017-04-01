@@ -24,7 +24,7 @@
            (s/def def-name #(= type-id %))
            #(gen/fmap (fn [& _] type-id)))))
 
-(s/def ::attribute (s/keys :req-un [::id ::type-id ::arity]))
+(s/def ::attribute (s/keys :req-un [::id ::type-id ::arity ::required]))
 (s/def ::attributes (s/coll-of ::attribute :distinct true :into []))
 
 (s/def ::parent (s/keys :req-un [::type-id]))
@@ -33,11 +33,15 @@
 (s/def ::annotation (s/keys :req-un [::space ::key ::value]))
 (s/def ::annotations  (s/coll-of ::annotation :distinct true :into []))
 
-(s/def ::type (s/keys :req-un [::id ::attributes ::parents ::annotations]))
+(s/def ::method (s/keys :req-un [::id ::return ::params]))
+(s/def ::return (s/keys :req-un [::type-id ::required]))
+(s/def ::methods  (s/coll-of ::method :distinct true :into []))
+
+(s/def ::type (s/keys :req-un [::id ::attributes ::parents ::annotations ::methods]))
 (s/def ::type-kw (s/with-gen #(= :type %) #(s/gen #{:type})))
 (s/def ::type-obj (s/tuple ::type-kw ::type))
 
-(s/def ::interface (s/keys :req-un [::id ::attributes ::parents]))
+(s/def ::interface (s/keys :req-un [::id ::attributes ::parents ::annotations ::methods]))
 (s/def ::interface-kw (s/with-gen #(= :interface %) #(s/gen #{:type})))
 (s/def ::interface-obj (s/tuple ::interface-kw ::interface))
 
@@ -65,20 +69,77 @@
 ;              {"t2"
 ;               [:type
 ;                {:id "t2",
-;                 :attributes [{:type-id "String", :arity [1 1], :id "id"}],
+;                 :attributes
+;                 [{:type-id "String", :arity [1 1], :id "id", :required true}
+;                  {:type-id "String", :arity [1 1], :id "id2", :required false}],
+;                 :methods
+;                 [{:id "myMethod2",
+;                   :return {:type-id "ReturnString", :required true},
+;                   :params
+;                   [{:type-id "String",
+;                     :arity [1 1],
+;                     :id "parameter",
+;                     :relationship-type :attribute,
+;                     :required false}]}
+;                  {:id "myMethod",
+;                   :return {:type-id "ReturnString", :required false},
+;                   :params
+;                   [{:type-id "String",
+;                     :arity [1 1],
+;                     :id "parameter",
+;                     :relationship-type :attribute,
+;                     :required false}
+;                    {:type-id "Integer",
+;                     :arity [1 1],
+;                     :id "param2",
+;                     :relationship-type :attribute,
+;                     :required false}]}
+;                  {:id "myMethod3",
+;                   :return {:type-id "ReturnType", :required false},
+;                   :params
+;                   [{:type-id "String",
+;                     :arity [1 1],
+;                     :id "p1",
+;                     :relationship-type :attribute,
+;                     :required false}
+;                    {:type-id "Integer",
+;                     :arity [1 1],
+;                     :id "p2",
+;                     :relationship-type :attribute,
+;                     :required false}
+;                    {:type-id "Boolean",
+;                     :arity [1 1],
+;                     :id "P3",
+;                     :relationship-type :attribute,
+;                     :required true}]}],
+;                 :parents [],
+;                 :annotations []}],
+;               "A"
+;               [:interface
+;                {:id "A",
+;                 :attributes [],
+;                 :methods
+;                 [{:id "m",
+;                   :return {:type-id "Void", :required false},
+;                   :params
+;                   [{:type-id "String",
+;                     :arity [1 1],
+;                     :id "abc",
+;                     :relationship-type :attribute,
+;                     :required false}]}],
 ;                 :parents [],
 ;                 :annotations []}],
 ;               "t1"
 ;               [:type
 ;                {:id "t1",
-;                 :attributes [{:type-id "String", :arity [1 1], :id "id"}],
+;                 :attributes
+;                 [{:type-id "String", :arity [1 1], :id "id3", :required false}],
+;                 :methods [],
 ;                 :parents [],
 ;                 :annotations
 ;                 [{:space "lang/graphql", :key "identifier", :value "input"}
 ;                  {:space "lang/java", :key "identifier", :value "input"}]}]},
-;             :diagrams {}})
-
-
-; 
+;              :diagrams {}})
+;
 ; (println (s/valid? ::namespaces model))
 ; (println (s/explain ::namespaces model))

@@ -8,8 +8,8 @@ unicode-BOM ::= "\uFEFF"
 white-space ::= #"[\x{9}\x{20}]"
 block-start ::= <ignored> <"{">
 block-end ::= <ignored> <"}">
-group-start ::= <ignored> <"(">
-group-end ::= <ignored> <")">
+group-start ::= <ignored> <"("> <ignored>
+group-end ::= <ignored> <")"> <ignored>
 new-line ::= #"\n"
 comment-char ::= "//"
 comment ::= comment-char value <new-line>
@@ -25,10 +25,13 @@ annotation ::= <"@"> annotation-space <spacer> identifier <spacer> value <spacer
 
 (* class statement *)
 type ::= annotation* <"type"> <spacer> identifier parent-set? attribute-block
-<attribute-block> ::= <block-start> attribute+ <block-end>
-attribute ::= <ignored> identifier <ignored> <":"> <ignored> kind
+<attribute-block> ::= <block-start> (attribute|method)+ <block-end>
+attribute ::= <ignored> identifier <ignored> <":"> <ignored> kind required? <",">?
+method ::= <ignored> identifier <ignored> <group-start> attribute+ <group-end> <ignored> <":"> <ignored> return-kind
 arity-value ::= #"[0-9]+" | "n"
 <arity> ::= <"["> arity-value (<".."> arity-value) <"]">
+required ::= <"!">
+return-kind ::= identifier arity? required?
 kind ::= identifier arity?
 <parent-set> ::= <ignored> <":"> <ignored> parent*
 parent ::= <ignored> identifier

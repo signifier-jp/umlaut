@@ -27,10 +27,15 @@
   [node]
   (= (first node) :interface))
 
-(defn type-or-interface?
+(defn enum?
+  "Whether an AST node is an enum node or not"
+  [node]
+  (= (first node) :enum))
+
+(defn type-interface-or-enum?
   "Whether an AST node is an interface node or not"
   [node]
-  (or (type? node) (interface? node)))
+  (or (type? node) (interface? node) (enum? node)))
 
 (defn extend-key
   "Extends the key of a map with new values"

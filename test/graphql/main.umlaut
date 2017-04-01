@@ -1,9 +1,18 @@
 type t2 {
-  id: String
+  id: String!
+  id2: String
+  myMethod2(parameter: String): ReturnString!
+  myMethod(parameter: String param2: Integer): ReturnString
+  myMethod3(p1: String, p2: Integer
+      P3: Boolean!): ReturnType
+}
+
+interface A {
+  m(abc: String): Void
 }
 
 @lang/graphql identifier input
 @lang/java identifier input
 type t1 {
-  id: String
+  id3: String
 }
