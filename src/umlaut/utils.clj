@@ -2,7 +2,7 @@
     (:require [clojure.string :as string]
       [clojure.spec.gen :as gen]))
 
-(def primitive-types ["String" "Float" "Integer" "Boolean" "DateTime"])
+(def primitive-types ["String" "Float" "Integer" "Boolean" "DateTime", "ID"])
 
 (defn primitive? "Whether type is primitive or not" [type]
       (> (count (filter #(=
@@ -50,3 +50,23 @@
   "Whether collection has the element inside"
   [element collection]
   (some #(= element %) collection))
+
+(defn annotations-by-space [space annotations]
+  "Filter an array of annotation by space"
+  (filter #(= (% :space) space) annotations))
+
+(defn annotations-by-key [key annotations]
+  "Filter an array of annotation by key"
+  (filter #(= (% :key) key) annotations))
+
+(defn annotations-by-space-key [space key annotations]
+  "Filter an array of annotation by key and value"
+  (filter #(and (= space (% :space)) (= key (% :key))) annotations))
+
+(defn annotations-by-key-value [key value annotations]
+  "Filter an array of annotation by key and value"
+  (filter #(and (= value (% :value)) (= key (% :key))) annotations))
+
+(defn annotations-by-space-key-value [space key value annotations]
+  "Filter an array of annotation by space, key, and value"
+  (filter #(and (= space (% :space)) (= value (% :value)) (= key (% :key))) annotations))

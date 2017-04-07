@@ -21,17 +21,17 @@ comment ::= comment-char value <new-line>
 
 (* annotations *)
 <annotation-space> ::= identifier <"/"> identifier
-annotation ::= <"@"> annotation-space <spacer> identifier <spacer> value <spacer>
+annotation ::= <"@"> annotation-space <spacer> identifier <spacer> value+ <spacer>
 
 (* class statement *)
 type ::= annotation* <"type"> <spacer> identifier parent-set? attribute-block
 <attribute-block> ::= <block-start> (attribute|method)+ <block-end>
 attribute ::= <ignored> identifier <ignored> <":"> <ignored> kind required? <",">?
-method ::= <ignored> identifier <ignored> <group-start> attribute+ <group-end> <ignored> <":"> <ignored> return-kind
+method ::= <ignored> identifier <ignored> <group-start> attribute* <group-end> <ignored> <":"> <ignored> return-kind
 arity-value ::= #"[0-9]+" | "n"
 <arity> ::= <"["> arity-value (<".."> arity-value) <"]">
 required ::= <"!">
-return-kind ::= identifier arity? required?
+return-kind ::= kind required?
 kind ::= identifier arity?
 <parent-set> ::= <ignored> <":"> <ignored> parent*
 parent ::= <ignored> identifier

@@ -3,40 +3,52 @@
             [instaparse.core :as insta]
             [umlaut.utils :as utils]))
 (use '[clojure.pprint :only [pprint]])
+(use '[clojure.string :only (split)])
 
 (def parser
   (insta/parser
     (io/resource "umlaut.bnf")))
 
 (defn- normalize-arity
+  "Formats :arity according to the number of args"
   [args]
   (case (count args)
     0 [1 1]
-    1 (let [lone (nth args 0)]
+    1 (let [lone (first args)]
         (if (= "n" lone) [1 lone] [lone lone]))
     2 (vec args)))
 
 (defn- to-enum
+  "Transforms AST :enum to enum map"
   [id & args]
   [:enum {:id id :values args}])
 
 (defn- to-kind
+  "Transforms AST :kind to kind map"
   [id & args] {:type-id id :arity (normalize-arity args)})
 
+(defn- required? [args]
+  "Retruns a boolean whether the attribute/param is required or not"
+  (= (first (last args)) :required))
+
 (defn- to-attribute
+  "Transforms AST :attribute to attribute map"
   [id & args]
   (assoc (first args)
     :id id
     :relationship-type :attribute
-    :required (= (first (last args)) :required)))
+    :required (required? args)))
 
 (defn- to-method-params [params]
   (vec params))
 
 (defn- to-return [node]
-  (assoc {} :type-id (second node) :required (= (first (last node)) :required)))
+  "Transforms AST :return into return map"
+  (let [return (second node)]
+    (merge return {:required (required? node)})))
 
 (defn- to-method
+  "Transforms AST :method into method map"
   [id & args]
   (assoc {}
     :id id
@@ -45,6 +57,7 @@
     :relationship-type :method))
 
 (defn- to-parent
+  "Creates a parent map"
   [type] {:type-id type :relationship-type :parent})
 
 (defn- filter-relationship-type
@@ -72,6 +85,7 @@
                       :annotations (filter-annotations all)}])))
 
 (defn- to-diagram
+  "Transforms AST :diagram to diagram map"
   [id & args] [:diagram {:id id
                          :groups (vec args)}])
 
@@ -79,17 +93,19 @@
   [& args] (vec args))
 
 (defn- to-annotation
-  [space-1 space-2 attribute value]
-  [:annotation {:space (str space-1 "/" space-2)
-                :key attribute
-                :value value}])
+  "Transforms AST :annotation to annotation map"
+  [space-1 space-2 attribute values]
+  (let [parsed (split values #" ")]
+    [:annotation {:space (str space-1 "/" space-2)
+                  :key attribute
+                  :value (if (= (count parsed) 1) (first parsed) parsed)}]))
 
 (defn- id-list [nodelist]
   "Given a list of nodes, return a list of all node ids"
   (map #(get (second %) :id) nodelist))
 
 (defn- transformer
-  [args]
+  [ast]
   (let [node-list (insta/transform {:enum to-enum
                                     :annotation to-annotation
                                     :arity-value #(if (not= "n" %) (read-string %) %)
@@ -100,13 +116,16 @@
                                     :attribute to-attribute
                                     :method to-method
                                     :diagram to-diagram
-                                    :diagram-group to-diagram-group} args)]
+                                    :diagram-group to-diagram-group} ast)]
       {:nodes (zipmap (id-list (filter utils/type-interface-or-enum? node-list)) (filter utils/type-interface-or-enum? node-list))
        :diagrams (zipmap (id-list (filter utils/diagram? node-list)) (filter utils/diagram? node-list))}))
 
 (defn parse
   [content]
-  (->> (parser content) transformer))
+  (let [parsed (parser content)]
+    (if (insta/failure? parsed)
+      (insta/get-failure parsed)
+      (transformer parsed))))
 
-(pprint (parse (slurp "test/graphql/main.umlaut")))
+(pprint (parse (slurp "test/philz/main.umlaut")))
 

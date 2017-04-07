@@ -1,0 +1,97 @@
+interface RootNode {
+  id: ID!
+}
+
+@lang/lacinia resolver stores resolve-stores
+type ViewerNode : RootNode {
+  id: ID!
+  productGroups: ProductGroupNode[1..n]!
+  stores(locationSearch: LocationSearchInput): StoreNode[1..n]!
+}
+
+type StoreNode : RootNode {
+  id: ID!
+  name: String!
+  address: String!
+  latitude: Float!
+  longitude: Float!
+  distance: Float
+}
+
+type ProductNode : RootNode {
+  id: ID!
+  name: String!
+  headerText: String!
+  posterImgSrc: String!
+  posterVideoSrc: String
+  variantTypes: VariantType[0..n]!
+  variantSelection: VariantSelection[0..n]!
+  price: Float!
+}
+
+type ProductGroupNode : RootNode {
+  id: ID!
+  products: ProductNode[0..n]!
+  soonestAvailableTimeSlot: TimeSlot
+  availableSchedules: ScheduleEntry[0..n]
+}
+
+type CartNode : RootNode {
+  id: ID!
+  products: ProductNode[1..n]!
+  totalCount: Integer!
+  totalPrice: Float!
+  totalTax: Float!
+}
+
+type VariantValue {
+  key: String!
+  value: String!
+}
+
+type VariantType {
+  key: String!
+  type: String!
+  availableValues: VariantValue[1..n]!
+}
+
+type VariantSelection {
+  type: VariantType!
+  value: VariantValue!
+}
+
+type TimeSlot {
+  dateTime: String!
+  offsetInMins: Integer!
+}
+
+type ScheduleEntry {
+  timeSlot: TimeSlot!
+  available: Boolean!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+@lang/lacinia identifier input
+type LocationSearchInput {
+  latitude: Float!
+  longitude: Float!
+  radius: Float!
+}
+
+@lang/lacinia identifier query
+@lang/lacinia resolver viewer resolve-viewer
+@lang/lacinia resolver node resolve-node
+type QueryRoot {
+  viewer(): ViewerNode
+  node(id: ID!): RootNode
+}
+
+diagram philz {
+  (RootNode ViewerNode)!
+}

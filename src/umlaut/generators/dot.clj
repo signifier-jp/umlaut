@@ -12,6 +12,7 @@
 
 (def footer (slurp (io/resource "templates/footer.dot")))
 
+;; Store all edges added in a subgraph, so we don't have redundant edges
 (def edges [])
 
 (defn- arity-label
@@ -43,7 +44,7 @@
     ""))
 
 (defn- node-str
-  "Receives an AST node and generates the proper dotstring"
+  "Receives an AST node and generates the dotstring of the node"
   [[kind type-obj]]
   (str "  " (:id type-obj)
     " [label = "
@@ -66,15 +67,14 @@
         (gen-subgraph-content umlaut)
         "}\n")))
 
-(defn- getGroupSet
+(defn- get-group-set
   "Receives a umlaut structure and returns a set with all the boxes that will be drawn"
   [umlaut]
   (set (flatten ((second (umlaut :current)) :groups))))
 
 (defn- draw-edge? [node umlaut]
-  (when (= ((second (umlaut :current)) :id) "all2"))
   (or
-    (contains? (getGroupSet umlaut) (node :type-id))
+    (contains? (get-group-set umlaut) (node :type-id))
     (in? (node :type-id) (keys (umlaut :nodes)))))
 
 (defn- filter-attr-in-map
@@ -119,7 +119,8 @@
   (reduce (fn [acc [id node]]
             (let [block (second node)]
               (str acc (build-edges-attributes block umlaut)
-                (when (contain-parents? block) (build-edges-inheritance block (block :parents) umlaut)))))
+                (when (contain-parents? block)
+                  (build-edges-inheritance block (block :parents) umlaut)))))
    "" (seq (umlaut :nodes))))
 
 (defn gen-subgraphs-string [umlaut]
@@ -177,6 +178,7 @@
     visited))
 
 (defn get-nodes-recursively [start umlaut]
+  "Flatten all the reachable nodes from a starting node"
   (flatten (dfs start (umlaut :nodes) ())))
 
 (defn create-group [group umlaut]

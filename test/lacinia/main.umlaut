@@ -1,0 +1,21 @@
+enum Episode {
+  NEWHOPE
+  EMPIRE
+  JEDI
+}
+
+type Droid {
+  id: Integer!
+  number: Float!
+  name: String
+  appears_in: Episode[1..n]
+  appears_in2: Episode[1..n]!
+}
+
+interface Parent {
+  id: Integer
+}
+
+type Child : Parent {
+  name: String
+}
