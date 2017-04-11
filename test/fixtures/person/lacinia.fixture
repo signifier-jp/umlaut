@@ -1,0 +1,15 @@
+{:objects
+ {:Person {:fields {:name {:type String}}, :implements []},
+  :Employee
+  {:fields
+   {:salary {:type Float},
+    :status {:type :RelationshipStatus},
+    :profession {:type :Profession},
+    :friends {:type (non-null (list (non-null String)))},
+    :changeSalary {:type Float, :args {:newSalary {:type Float}}}},
+   :implements [:Person]},
+  :Profession {:fields {:name {:type String}}, :implements []}},
+ :enums {:RelationshipStatus {:values ["Single" "Married"]}},
+ :interfaces {},
+ :queries
+ {:getFriends {:type (non-null (list (non-null :Person))), :args {}}}}

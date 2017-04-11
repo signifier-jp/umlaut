@@ -1,4 +1,4 @@
-(ns umlaut.generators.graphql
+(ns umlaut.generators.lacinia
   (:require [clojure.java.io :as io]
             [umlaut.utils :refer :all]
             [umlaut.models :as model]))
@@ -89,10 +89,6 @@
   (let [info (second node)]
     (merge {} (process-declaration info))))
 
-(defn- write-file [filename content]
-  (with-open [w (clojure.java.io/writer (str "output/" filename))]
-    (.write w (with-out-str (pprint content)))))
-
 (defn- annotation-comprarer [key value]
   (fn [node]
     (let [annotations (annotations-by-space space ((last (last node)) :annotations))]
@@ -146,5 +142,5 @@
         coll (filter-query-nodes nodes-seq)))))
 
 
-(write-file "schema.edn" (gen (umlaut.core/-main "test/philz")))
-(pprint (gen (umlaut.core/-main "test/philz")))
+(save-map-to-file "output/schema.edn" (gen (umlaut.core/-main "test/fixtures/person")))
+(pprint (gen (umlaut.core/-main "test/fixtures/person")))

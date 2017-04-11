@@ -1,0 +1,25 @@
+type Person {
+  name: String
+}
+
+type Employee : Person {
+  salary: Float
+  status: RelationshipStatus
+  profession: Profession
+  changeSalary(newSalary: Float): Float
+  friends: String[0..n]!
+}
+
+enum RelationshipStatus {
+  Single
+  Married
+}
+
+@lang/lacinia identifier query
+type QueryRoot {
+  getFriends(): Person[0..n]!
+}
+
+diagram fixture {
+  (Employee)!
+}

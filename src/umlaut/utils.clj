@@ -1,6 +1,7 @@
 (ns umlaut.utils
     (:require [clojure.string :as string]
       [clojure.spec.gen :as gen]))
+(use '[clojure.pprint :only [pprint]])
 
 (def primitive-types ["String" "Float" "Integer" "Boolean" "DateTime", "ID"])
 
@@ -37,10 +38,14 @@
   [node]
   (or (type? node) (interface? node) (enum? node)))
 
-(defn extend-key
-  "Extends the key of a map with new values"
-  [key new parent]
-  (merge (parent key) new))
+(defn map-extend [base extension]
+  (reduce (fn [acc [key value]]
+            (if (contains? acc key)
+              (if (instance? clojure.lang.PersistentArrayMap value)
+                (assoc acc key (map-extend (base key) (extension key)))
+                (assoc acc key value))
+              (assoc acc key value)))
+    base (seq extension)))
 
 (defn umlaut-base [nodes diagrams]
   "Base map structure of the ast data structure"
@@ -70,3 +75,11 @@
 (defn annotations-by-space-key-value [space key value annotations]
   "Filter an array of annotation by space, key, and value"
   (filter #(and (= space (% :space)) (= value (% :value)) (= key (% :key))) annotations))
+
+(defn save-map-to-file [filepath content]
+  (with-open [w (clojure.java.io/writer filepath)]
+    (.write w (with-out-str (pprint content)))))
+
+(defn save-string-to-file [filepath content]
+  (with-open [w (clojure.java.io/writer filepath)]
+    (.write w content)))

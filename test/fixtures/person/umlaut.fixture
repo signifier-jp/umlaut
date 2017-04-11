@@ -1,0 +1,60 @@
+{:nodes
+ {"Person"
+  [:type
+   {:id "Person",
+    :attributes
+    [{:type-id "String", :arity [1 1], :id "name", :required false}],
+    :methods [],
+    :parents [],
+    :annotations []}],
+  "Employee"
+  [:type
+   {:id "Employee",
+    :attributes
+    [{:type-id "Float", :arity [1 1], :id "salary", :required false}
+     {:type-id "RelationshipStatus",
+      :arity [1 1],
+      :id "status",
+      :required false}
+     {:type-id "Profession",
+      :arity [1 1],
+      :id "profession",
+      :required false}
+     {:type-id "String",
+      :arity [0 "n"],
+      :id "friends",
+      :required true}],
+    :methods
+    [{:id "changeSalary",
+      :return {:type-id "Float", :arity [1 1], :required false},
+      :params
+      [{:type-id "Float",
+        :arity [1 1],
+        :id "newSalary",
+        :relationship-type :attribute,
+        :required false}]}],
+    :parents [{:type-id "Person"}],
+    :annotations []}],
+  "RelationshipStatus"
+  [:enum {:id "RelationshipStatus", :values ("Single" "Married")}],
+  "QueryRoot"
+  [:type
+   {:id "QueryRoot",
+    :attributes [],
+    :methods
+    [{:id "getFriends",
+      :return {:type-id "Person", :arity [0 "n"], :required true},
+      :params []}],
+    :parents [],
+    :annotations
+    [{:space "lang/lacinia", :key "identifier", :value "query"}]}],
+  "Profession"
+  [:type
+   {:id "Profession",
+    :attributes
+    [{:type-id "String", :arity [1 1], :id "name", :required false}],
+    :methods [],
+    :parents [],
+    :annotations []}]},
+ :diagrams
+ {"fixture" [:diagram {:id "fixture", :groups [["Employee" "!"]]}]}}

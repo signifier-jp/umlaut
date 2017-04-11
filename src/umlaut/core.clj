@@ -18,8 +18,8 @@
       (filter #(str/ends-with? % ".umlaut"))
       (reduce (fn [acc filename]
                 (let [parsed (parse (slurp filename))]
-                  (merge acc {:nodes (utils/extend-key :nodes (parsed :nodes) acc)
-                              :diagrams (utils/extend-key :diagrams (parsed  :diagrams) acc)}))) {})))
+                  (utils/map-extend acc {:nodes (parsed :nodes)
+                                          :diagrams (parsed :diagrams)}))) {})))
 
 (defn- read-folder [path]
   "Validate all the umlaut code parsed from a folder"
@@ -39,5 +39,3 @@
         :ret ::model/namespaces)
 
 (stest/instrument `-main)
-(pprint (-main "test/graphql"))
-

@@ -56,9 +56,14 @@
   (reduce (fn [acc [id node]]
             (str acc (node-str node) "\n")) "" (seq (umlaut :nodes))))
 
+(defn- subgraph-id [umlaut]
+  (->> (seq (umlaut :nodes))
+       (first)
+       (first)))
+
 (defn gen-subgraph
   [umlaut]
-  (let [ns-id (gensym)]
+  (let [ns-id (subgraph-id umlaut)]
    (str "subgraph "
         ns-id
         " {\n  label = \""
@@ -134,7 +139,9 @@
 (defn save-diagram [filename dotstring]
   (println (str "Saving " filename))
   ; (println dotstring)
-  (sh "dot" "-Tpng" "-o" filename :in dotstring))
+  (let [error (sh "dot" "-Tpng" "-o" filename :in dotstring)]
+    (when (= (error :exit) 1)
+      (throw (Exception. (with-out-str (pprint error)))))))
 
 (defn required-nodes [required coll]
   "Returns a map of all the nodes inside of coll that are in the required vector"
@@ -165,7 +172,7 @@
       (flatten (merge adjs (map #(% :type-id) (block :parents))))
       adjs)))
 
-(defn dfs
+(defn- dfs
   "Traverses a map given a starting point"
   [current graph visited]
   (if (not (in? current visited))
@@ -177,11 +184,11 @@
         new-visited))
     visited))
 
-(defn get-nodes-recursively [start umlaut]
+(defn- get-nodes-recursively [start umlaut]
   "Flatten all the reachable nodes from a starting node"
   (flatten (dfs start (umlaut :nodes) ())))
 
-(defn create-group [group umlaut]
+(defn- create-group [group umlaut]
   (if (= (last group) "!")
     (reduce (fn [acc start]
               (distinct (concat acc (get-nodes-recursively start umlaut))))
@@ -191,16 +198,18 @@
 (defn gen-diagrams
   "Generate all diagrams based on the umlaut code"
   [umlaut]
-  (for [dobject (seq (umlaut :diagrams))]
-    (do
+  (reduce
+    (fn [acc dobject]
       (def edges [])
-      (let [name (first dobject) node (second dobject)]
-        (save-diagram (format-filename name)
-          (gen-dotstring
-            (reduce (fn [acc group]
-                      (str acc
-                        (gen-subgraphs-string (remove-extra-nodes name
-                                                (create-group group umlaut) umlaut))))
-              "" ((second node) :groups))))))))
+      (let [name (first dobject) node (second dobject)
+            curr (gen-dotstring
+                  (reduce (fn [acc group]
+                            (str acc
+                              (gen-subgraphs-string (remove-extra-nodes name
+                                                      (create-group group umlaut) umlaut))))
+                          "" ((second node) :groups)))]
+        (save-diagram (format-filename name) curr)
+        (assoc acc (format-filename name) curr)))
+    {} (seq (umlaut :diagrams))))
 
-(gen-diagrams (umlaut.core/-main "test/tickets"))
+(gen-diagrams (umlaut.core/-main "test/fixtures/person"))

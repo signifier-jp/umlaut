@@ -1,0 +1,31 @@
+digraph G {
+  fontname = "Bitstream Vera Sans"
+  fontsize = 8
+
+  node [
+    fontname = "Bitstream Vera Sans"
+    fontsize = 8
+    shape = "record"
+  ]
+
+  edge [
+    fontname = "Bitstream Vera Sans"
+    fontsize = 8
+    arrowhead = "open"
+  ]
+subgraph Employee {
+  label = "Employee"
+  Employee [label = "{Employee|+ salary : Float\l+ status : RelationshipStatus\l+ profession : Profession\l+ friends : String[0..n]\l}"]
+  Person [label = "{Person|+ name : String\l}"]
+  Profession [label = "{Profession|+ name : String\l}"]
+  RelationshipStatus [label = "{\<\<enum\>\>RelationshipStatus|+ Single\l+ Married\l}"]
+}
+Employee -> RelationshipStatus
+
+Employee -> Profession
+edge [arrowhead = "empty"]
+Employee -> Person
+
+edge [arrowhead = "open"]
+
+}
