@@ -5,9 +5,9 @@ type Person {
 type Employee : Person {
   salary: Float
   status: RelationshipStatus
-  profession: Profession
+  profession: Profession?
   changeSalary(newSalary: Float): Float
-  friends: String[0..n]!
+  friends: String[0..n]
 }
 
 enum RelationshipStatus {
@@ -17,7 +17,7 @@ enum RelationshipStatus {
 
 @lang/lacinia identifier query
 type QueryRoot {
-  getFriends(): Person[0..n]!
+  getFriends(): Person[0..n]
 }
 
 diagram fixture {

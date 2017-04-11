@@ -3,7 +3,7 @@
   [:type
    {:id "Person",
     :attributes
-    [{:type-id "String", :arity [1 1], :id "name", :required false}],
+    [{:type-id "String", :arity [1 1], :id "name", :required true}],
     :methods [],
     :parents [],
     :annotations []}],
@@ -11,11 +11,11 @@
   [:type
    {:id "Employee",
     :attributes
-    [{:type-id "Float", :arity [1 1], :id "salary", :required false}
+    [{:type-id "Float", :arity [1 1], :id "salary", :required true}
      {:type-id "RelationshipStatus",
       :arity [1 1],
       :id "status",
-      :required false}
+      :required true}
      {:type-id "Profession",
       :arity [1 1],
       :id "profession",
@@ -26,13 +26,13 @@
       :required true}],
     :methods
     [{:id "changeSalary",
-      :return {:type-id "Float", :arity [1 1], :required false},
+      :return {:type-id "Float", :arity [1 1], :required true},
       :params
       [{:type-id "Float",
         :arity [1 1],
         :id "newSalary",
         :relationship-type :attribute,
-        :required false}]}],
+        :required true}]}],
     :parents [{:type-id "Person"}],
     :annotations []}],
   "RelationshipStatus"
@@ -52,7 +52,7 @@
   [:type
    {:id "Profession",
     :attributes
-    [{:type-id "String", :arity [1 1], :id "name", :required false}],
+    [{:type-id "String", :arity [1 1], :id "name", :required true}],
     :methods [],
     :parents [],
     :annotations []}]},

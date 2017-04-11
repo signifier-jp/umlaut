@@ -29,7 +29,7 @@
 
 (defn- required? [args]
   "Retruns a boolean whether the attribute/param is required or not"
-  (= (first (last args)) :required))
+  (not (= (first (last args)) :optional)))
 
 (defn- to-attribute
   "Transforms AST :attribute to attribute map"
@@ -127,5 +127,5 @@
       (insta/get-failure parsed)
       (transformer parsed))))
 
-(pprint (parse (slurp "test/philz/main.umlaut")))
+(pprint (parse (slurp "test/fixtures/person/person.umlaut")))
 
