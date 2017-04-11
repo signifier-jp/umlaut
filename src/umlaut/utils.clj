@@ -77,9 +77,11 @@
   (filter #(and (= space (% :space)) (= value (% :value)) (= key (% :key))) annotations))
 
 (defn save-map-to-file [filepath content]
+  "Receives a file name and a map, prints the map into a string and saves the string in filepath"
   (with-open [w (clojure.java.io/writer filepath)]
     (.write w (with-out-str (pprint content)))))
 
 (defn save-string-to-file [filepath content]
+  "Receives a file name and a string, saves the string in filepath"
   (with-open [w (clojure.java.io/writer filepath)]
     (.write w content)))
