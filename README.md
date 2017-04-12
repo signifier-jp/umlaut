@@ -136,6 +136,7 @@ The above example generates this diagram:
 
 ![filename](./resources/filename.png)
 
+- A file named `all.png` is always created with all the types defined in the umlaut document.
 - The file created is `filename.png` because of the identifier in the `diagram` keyword.
 - The diagram includes the `RelationshipStatus` box because of the `!` used in the `(Person)` group. This tells umlaut to recursively draw all boxes that compose `Person`. If the `!` was omitted, the diagram would have a single `Person` box.
 - You can have as many diagrams definitions/combinations as you want, just give them different names.

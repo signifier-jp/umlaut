@@ -75,7 +75,9 @@
 (defn- get-group-set
   "Receives a umlaut structure and returns a set with all the boxes that will be drawn"
   [umlaut]
-  (set (flatten ((second (umlaut :current)) :groups))))
+  (if (umlaut :current)
+    (set (flatten ((second (umlaut :current)) :groups)))
+    (set [])))
 
 (defn- draw-edge? [node umlaut]
   (or
@@ -198,6 +200,10 @@
 (defn gen-diagrams
   "Generate all diagrams based on the umlaut code"
   [umlaut]
+  (->> umlaut
+    (gen-subgraphs-string)
+    (gen-dotstring)
+    (save-diagram (format-filename "all")))
   (reduce
     (fn [acc dobject]
       (def ^:private edges (atom []))
