@@ -13,7 +13,7 @@
 (def footer (slurp (io/resource "templates/footer.dot")))
 
 ;; Store all edges added in a subgraph, so we don't have redundant edges
-(def edges [])
+(def ^:private edges (atom []))
 
 (defn- arity-label
   "Builds the arity representation in the diagram"
@@ -94,9 +94,9 @@
 (defn- edge-label [src dst]
   "Returns a dot string that represents an edge"
   (let [label (str src " -> " dst "\n")]
-    (if (not (in? label edges))
+    (if (not (in? label (deref edges)))
       (do
-        (def edges(conj edges label))
+        (swap! edges conj label)
         label)
       "")))
 
@@ -200,7 +200,7 @@
   [umlaut]
   (reduce
     (fn [acc dobject]
-      (def edges [])
+      (def ^:private edges (atom []))
       (let [name (first dobject) node (second dobject)
             curr (gen-dotstring
                   (reduce (fn [acc group]
