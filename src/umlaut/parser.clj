@@ -123,9 +123,5 @@
 (defn parse
   [content]
   (let [parsed (parser content)]
-    (if (insta/failure? parsed)
-      (insta/get-failure parsed)
-      (transformer parsed))))
-
-(pprint (parse (slurp "test/fixtures/person/person.umlaut")))
-
+    (pprint (insta/get-failure parsed))
+    (transformer parsed)))

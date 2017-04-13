@@ -29,13 +29,13 @@
       (throw (Exception. (s/explain ::model/namespaces parsed)))
       parsed)))
 
-(defn -main
+(defn main
   "Parses, validates, and transform the umlaut files from a folder"
   [path]
   (read-folder path))
 
-(s/fdef -main
+(s/fdef main
         :args (s/cat :path string?)
         :ret ::model/namespaces)
 
-(stest/instrument `-main)
+(stest/instrument `main)

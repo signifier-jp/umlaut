@@ -1,6 +1,7 @@
 (ns umlaut.generators.lacinia
   (:require [clojure.java.io :as io]
             [umlaut.utils :refer :all]
+            [umlaut.core :as core]
             [umlaut.models :as model]))
 (use '[clojure.pprint :only [pprint]])
 
@@ -58,7 +59,7 @@
             acc (info :methods))
     (reduce (fn [acc annotation]
               (let [key (keyword (first (annotation :value)))]
-                (merge acc {key (merge (acc key) {:resolver (keyword (second (annotation :value)))})})))
+                (merge acc {key (merge (acc key) {:resolve (keyword (second (annotation :value)))})})))
             acc (annotations-by-space-key space "resolver" (info :annotations)))))
 
 (defn- attr-to-values [info]
@@ -141,6 +142,6 @@
                       :queries (or (merge (acc :queries) (gen-query-type node)) {})}))
         coll (filter-query-nodes nodes-seq)))))
 
-
-(save-map-to-file "output/schema.edn" (gen (umlaut.core/-main "test/fixtures/person")))
-(pprint (gen (umlaut.core/-main "test/fixtures/person")))
+(defn gen-lacinia
+  [path]
+  (gen (core/main path)))

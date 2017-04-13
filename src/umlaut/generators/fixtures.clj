@@ -18,7 +18,7 @@
   (save-map-to-file filename umlaut))
 
 (defn- gen-dotstring [filename umlaut]
-  (let [dotstring (first (seq (dot/gen-diagrams umlaut)))]
+  (let [dotstring (first (seq (dot/gen umlaut)))]
     (save-string-to-file filename (second dotstring))))
 
 (defn- gen-lacinia [filename umlaut]
@@ -29,4 +29,4 @@
   (gen-dotstring (str base "dot.fixture") umlaut)
   (gen-lacinia (str base "lacinia.fixture") umlaut))
 
-(gen-all (umlaut.core/-main base))
+(gen-all (umlaut.core/main base))

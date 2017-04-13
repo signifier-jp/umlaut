@@ -1,6 +1,7 @@
 (ns umlaut.generators.dot
   (:require [clojure.java.io :as io]
             [umlaut.models :as model]
+            [umlaut.core :as core]
             [umlaut.utils :refer :all]
             [clojure.spec :as s]
             [clojure.string :as string]
@@ -197,8 +198,8 @@
       [] (drop-last group))
     group))
 
-(defn gen-diagrams
-  "Generate all diagrams based on the umlaut code"
+(defn gen
+  "Generate all diagrams based on the umlaut structure"
   [umlaut]
   (->> umlaut
     (gen-subgraphs-string)
@@ -218,4 +219,5 @@
         (assoc acc (format-filename name) curr)))
     {} (seq (umlaut :diagrams))))
 
-(gen-diagrams (umlaut.core/-main "test/fixtures/person"))
+(defn gen-diagrams [path]
+  (gen (core/main path)))
