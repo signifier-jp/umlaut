@@ -12,10 +12,8 @@
 (defn- read-parse [path]
   "Read all the umlaut files from a folder and parse its content"
   (->> path
-      (io/file)
-      (file-seq)
-      (map #(.getPath %))
-      (filter #(str/ends-with? % ".umlaut"))
+      (list)
+      (flatten)
       (reduce (fn [acc filename]
                 (let [parsed (parse (slurp filename))]
                   (utils/map-extend acc {:nodes (parsed :nodes)
