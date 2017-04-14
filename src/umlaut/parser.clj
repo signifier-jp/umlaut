@@ -1,6 +1,7 @@
 (ns umlaut.parser
   (:require [clojure.java.io :as io]
             [instaparse.core :as insta]
+            [umlaut.core :as core]
             [umlaut.utils :as utils]))
 (use '[clojure.pprint :only [pprint]])
 (use '[clojure.string :only (split)])
@@ -54,6 +55,7 @@
     :id id
     :return (to-return (last args))
     :params (to-method-params (drop-last args))
+    :params? (> (count (to-method-params (drop-last args))) 0)
     :relationship-type :method))
 
 (defn- to-parent
@@ -79,8 +81,7 @@
                   id (first (filter string? all))
                   args (filter #(not (string? %)) args)]
               [type {:id id
-                      :attributes (filter-relationship-type :attribute all)
-                      :methods (filter-relationship-type :method all)
+                      :fields (filter-relationship-type :method all)
                       :parents (filter-relationship-type :parent all)
                       :annotations (filter-annotations all)}])))
 
@@ -125,3 +126,4 @@
   (let [parsed (parser content)]
     (pprint (insta/get-failure parsed))
     (transformer parsed)))
+

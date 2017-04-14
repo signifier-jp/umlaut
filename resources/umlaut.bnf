@@ -25,9 +25,10 @@ annotation ::= <"@"> annotation-space <spacer> identifier <spacer> value+ <space
 
 (* class statement *)
 type ::= annotation* <"type"> <spacer> identifier parent-set? attribute-block
-<attribute-block> ::= <block-start> (attribute|method)+ <block-end>
+<attribute-block> ::= <block-start> method+ <block-end>
 attribute ::= <ignored> identifier <ignored> <":"> <ignored> kind optional? <",">?
-method ::= <ignored> identifier <ignored> <group-start> attribute* <group-end> <ignored> <":"> <ignored> return-kind
+method ::= <ignored> identifier <ignored> method-args? <ignored> <":"> <ignored> return-kind
+<method-args> ::= <group-start> attribute* <group-end>
 arity-value ::= #"[0-9]+" | "n"
 <arity> ::= <"["> arity-value (<".."> arity-value) <"]">
 optional ::= <"?">

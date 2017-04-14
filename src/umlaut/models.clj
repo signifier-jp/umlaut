@@ -25,23 +25,21 @@
            #(gen/fmap (fn [& _] type-id)))))
 
 (s/def ::attribute (s/keys :req-un [::id ::type-id ::arity ::required]))
-(s/def ::attributes (s/coll-of ::attribute :distinct true :into []))
-
 (s/def ::parent (s/keys :req-un [::type-id]))
 (s/def ::parents (s/coll-of ::parent :distinct true :into []))
 
 (s/def ::annotation (s/keys :req-un [::space ::key ::value]))
 (s/def ::annotations  (s/coll-of ::annotation :distinct true :into []))
 
-(s/def ::method (s/keys :req-un [::id ::return ::params]))
-(s/def ::return (s/keys :req-un [::type-id ::required]))
-(s/def ::methods  (s/coll-of ::method :distinct true :into []))
+(s/def ::method (s/keys :req-un [::id ::return ::params ::params?]))
+(s/def ::return (s/keys :req-un [::type-id ::required ::arity]))
+(s/def ::fields  (s/coll-of ::method :distinct true :into []))
 
-(s/def ::type (s/keys :req-un [::id ::attributes ::parents ::annotations ::methods]))
+(s/def ::type (s/keys :req-un [::id ::parents ::annotations ::fields]))
 (s/def ::type-kw (s/with-gen #(= :type %) #(s/gen #{:type})))
 (s/def ::type-obj (s/tuple ::type-kw ::type))
 
-(s/def ::interface (s/keys :req-un [::id ::attributes ::parents ::annotations ::methods]))
+(s/def ::interface (s/keys :req-un [::id ::parents ::annotations ::fields]))
 (s/def ::interface-kw (s/with-gen #(= :interface %) #(s/gen #{:type})))
 (s/def ::interface-obj (s/tuple ::interface-kw ::interface))
 

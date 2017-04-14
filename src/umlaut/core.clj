@@ -33,7 +33,6 @@
   (read-folder path))
 
 (s/fdef main
-        :args (s/cat :path string?)
         :ret ::model/namespaces)
 
 (stest/instrument `main)

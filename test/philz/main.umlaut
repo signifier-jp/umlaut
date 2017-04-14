@@ -6,7 +6,7 @@ interface RootNode {
 type ViewerNode : RootNode {
   id: ID
   productGroups: ProductGroupNode[1..n]
-  stores(locationSearch: LocationSearchInput, first: Integer?, after: String?): StoreNode[1..n]
+  stores(locationSearch: LocationSearchInput, first: Integer?, after: String?): StoreConnection
 }
 
 type StoreConnection {

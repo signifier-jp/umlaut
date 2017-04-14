@@ -21,36 +21,58 @@
   [[from to]]
   (if (= from to) (str "") (str "[" from ".." to "]")))
 
+(defn- required-label [type-obj]
+  "Checkes required attribute and returns ? or not"
+  (if (type-obj :required)
+    ""
+    "?"))
+
+(defn- type-label [type]
+  "Receives a type object and builds a string"
+  (str (type :type-id) (arity-label (type :arity)) (required-label type)))
+
 (defn- attributes-list
   [{:keys [attributes]}]
-  (reduce #(str %1 "+ " (:id %2) " : " (:type-id %2)
-                (arity-label (:arity %2)) "\\l")
-          "" attributes))
+  (reduce #(str %1 (:id %2) ": " (type-label %2) "\\l") "" attributes))
 
 (defn- values-list
   [{:keys [values]}]
-  (reduce #(str %1 "+ " %2 "\\l")
-          "" values))
+  (reduce #(str %1 %2 "\\l" "" values)))
 
 (defn- node-label
   "Builds the string regarding object type"
   [kind type-obj]
   (case kind
-    :type (str "\"{"
-               (:id type-obj) "|" (attributes-list type-obj) "}\"")
-    :interface (str "\"{\\<\\<interface\\>\\>"
-                    (:id type-obj) "|" (attributes-list type-obj) "}\"")
-    :enum (str "\"{\\<\\<enum\\>\\>"
-               (:id type-obj) "|" (values-list type-obj) "}\"")
+    :type (str (:id type-obj) "|" (attributes-list type-obj))
+    :interface (str "\\<\\<interface\\>\\>" (:id type-obj) "|" (attributes-list type-obj))
+    :enum (str "\\<\\<enum\\>\\>" (:id type-obj) "|" (values-list type-obj))
     ""))
+
+(defn- method-args-label [method]
+  "Iterates over all the method arguments and builds the string"
+  (->> (method :params)
+    (map #(str (%1 :id) ": " (type-label %1)))
+    (string/join ", ")))
+
+(defn- method-label [method]
+  "Builds the string for a method inside a type"
+  (str (method :id) "(" (method-args-label method) "): " (type-label (method :return)) "\\l"))
+
+(defn- node-methods [kind type-obj]
+  "Iterates over all the methods building each one of the strings"
+  (reduce
+    (fn [acc method]
+      (str acc (method-label method)))
+    "" (type-obj :methods)))
 
 (defn- node-str
   "Receives an AST node and generates the dotstring of the node"
   [[kind type-obj]]
   (str "  " (:id type-obj)
-    " [label = "
+    " [label = \"{"
     (node-label kind type-obj)
-    "]"))
+    (node-methods kind type-obj)
+    "}\"]"))
 
 (defn- gen-subgraph-content
   [umlaut]
@@ -90,9 +112,31 @@
   [attributes umlaut]
   (filter #(draw-edge? % umlaut) attributes))
 
+(defn- filter-methods-in-map
+  "Filter methods of a declaration block that are inside any of the groups"
+  [methods umlaut]
+  (filter #(draw-edge? (% :return) umlaut) methods))
+
+(defn- get-all-param-types [methods]
+  (flatten (reduce (fn [acc el] (conj acc (el :params))) [] methods)))
+
+(defn- filter-args-in-map
+  "Filter method arguments of a declaration block that are inside any of the groups"
+  [methods umlaut]
+  (let [args (get-all-param-types methods)]
+    (filter #(draw-edge? % umlaut) args)))
+
 (defn- attr-types-from-node [node umlaut]
   "Returns a list of Strings of all non primitive types"
   (map #(get % :type-id) (filter-attr-in-map (get node :attributes) umlaut)))
+
+(defn- method-types-from-node [node umlaut]
+  "Returns a list of Strings of all non primitive types"
+  (map #((% :return) :type-id) (filter-methods-in-map (node :methods) umlaut)))
+
+(defn- method-args-from-node [node umlaut]
+  "Returns a list of Strings of all non primitive types"
+  (map #(% :type-id) (filter-args-in-map (node :methods) umlaut)))
 
 (defn- edge-label [src dst]
   "Returns a dot string that represents an edge"
@@ -107,6 +151,10 @@
   "Returns a dot string that represents an inheritance edge"
   (str "edge [arrowhead = \"empty\"]\n" (edge-label src dst) "\nedge [arrowhead = \"open\"]\n"))
 
+(defn- edge-args-label [src dst]
+  "Returns a dot string that represents an inheritance edge"
+  (str (edge-label src dst) " [style=dotted]\n"))
+
 (defn- build-edges-inheritance [node parents umlaut]
   "Builds a string with all inheritance edges (multiple inheritance case)"
   (string/join "\n" (map (fn [parent]
@@ -116,6 +164,12 @@
 (defn- build-edges-attributes [node umlaut]
   "Builds a string with all the regular edges between a type and its attributes"
   (string/join "\n" (map (fn [type] (edge-label (node :id) type)) (attr-types-from-node node umlaut))))
+
+(defn- build-edges-methods [node umlaut]
+  "Builds a string with all the regular edges between a type and its methods"
+  (str
+    (string/join "\n" (map (fn [type] (edge-label (node :id) type)) (method-types-from-node node umlaut)))
+    (string/join "\n" (map (fn [type] (edge-args-label (node :id) type)) (method-args-from-node node umlaut)))))
 
 (defn- contain-parents? [node]
   "Whether the type inherits from other types or not"
@@ -127,6 +181,7 @@
   (reduce (fn [acc [id node]]
             (let [block (second node)]
               (str acc (build-edges-attributes block umlaut)
+                (build-edges-methods block umlaut)
                 (when (contain-parents? block)
                   (build-edges-inheritance block (block :parents) umlaut)))))
    "" (seq (umlaut :nodes))))
@@ -164,13 +219,21 @@
   [attributes]
   (filter #(not-primitive? (% :type-id)) attributes))
 
-(defn- attr-types-from-node-not-primitive [node]
+(defn- filter-not-primitives-methods
+  "Filter attributes of a declaration block that are not primitive"
+  [methods]
+  (let [non-primitive (filter #(not-primitive? (% :type-id)) (get-all-param-types methods))]
+    (distinct (concat non-primitive (map #(% :return) methods)))))
+
+(defn- non-primitive-related-nodes [node]
   "Returns a list of Strings of all non primitive types"
-  (map #(% :type-id) (filter-not-primitives (node :attributes))))
+  (concat (map #(% :type-id) (filter-not-primitives (node :attributes)))
+          (map #(% :type-id) (filter-not-primitives-methods (node :methods)))))
 
 (defn- adjacent-nodes [key graph]
+  (pprint (non-primitive-related-nodes (second (graph key))))
   (let [block (second (graph key))
-        adjs (attr-types-from-node-not-primitive block)]
+        adjs (non-primitive-related-nodes block)]
     (if (contain-parents? block)
       (flatten (merge adjs (map #(% :type-id) (block :parents))))
       adjs)))
@@ -221,3 +284,5 @@
 
 (defn gen-diagrams [path]
   (gen (core/main path)))
+
+(gen-diagrams "test/philz/main.umlaut")

@@ -12,19 +12,19 @@ Let's go over `umlaut`'s syntax and characteristics.
 
 The primitive types are: `["String" "Float" "Integer" "Boolean" "DateTime", "ID"]`. If an attribute has a type that is not primitive, it must be properly declared.
 
-By default, all declared attributes are *non-null*. Nullable attributes must have the symbol `?` after the attribute type.
+By default, all declared fields are *non-null*. Nullable fields must have the symbol `?` after the attribute type.
 
-Umlaut receives a folder as input. It will search for all files with extension `umlaut` and load the schema into memory. One attribute definition can use the types defined in any other `umlaut` file under the same folder. No need for includes!
+Umlaut receives a list of files as input. It will open all files with extension `umlaut` and load the schema into memory. One declaration can use the types defined in any other `umlaut` file. No need for includes!
 
 Identifiers are valid if they are valid in this regex: `[_A-Za-z][_0-9A-Za-z]*`.
 
 Comments are indicated by `//`.
 
 ### Attributes and methods
-Inside of types and interfaces, you can declare attributes and methods.
+Inside of types and interfaces, you can declare fields.
 
-#### Attributes
-Attributes must always have a type (primitive or not), and are declared like this: `identifier: type`. You can add arity after the type to indicate a collection of items of that same type, like this: `identifier: type[min..max]`. Examples:
+#### Field
+Field represents two concepts on object oriented languages: attributes and methods. To represent a method, declare a filed with parameters. To represent an attribute, declare a method that doesn't parameters. All fields must have a type (primitive or not), and are declared like this: `identifier: type`. You can add arity after the type to indicate a collection of items of that same type, like this: `identifier: type[min..max]`. Examples:
 ```
   firstName: String
   middleName: String?
@@ -34,8 +34,7 @@ Attributes must always have a type (primitive or not), and are declared like thi
   friends: String[0..n]
 ```
 
-#### Methods
-We call methods or parametrized attributes the attributes that can receive parameters, perform some computation and return an arbitrary type. The have the following form: `identifier(identifier: type, ..., identifier: type): type`.
+We call methods attributes that can receive parameters, perform some computation and return an arbitrary type. The have the following form: `identifier(identifier: type, ..., identifier: type): type`.
 
 There is no limit in the number of parameters a method can receive. You can use the optional modifier `?` after any one of the types to indicate optionality. The return type of the method must always be specified. Examples:
 ```
@@ -43,6 +42,8 @@ There is no limit in the number of parameters a method can receive. You can use 
   setFirstName(name: String): String
   computeAge(dateOfBirth: DateTime, today: DateTime): Integer
 ```
+
+Note that `field(): type` is exactly the same of `field: type`.
 
 ### type
 ```
