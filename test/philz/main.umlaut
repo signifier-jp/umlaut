@@ -4,6 +4,11 @@ interface RootNode {
   id: ID
 }
 
+@lang/graphql identifier schema
+type schema {
+  query: QueryRoot
+}
+
 type PageInfo {
   hasNextPage: Boolean
   hasPreviousPage: Boolean

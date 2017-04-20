@@ -282,4 +282,4 @@
   (gen (core/main path)))
 
 ; (gen-by-group (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
-; (gen-by-group (core/main ["test/philz/main.umlaut"]))
+; (gen-all (core/main ["test/philz/main.umlaut"]))

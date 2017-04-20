@@ -1,19 +1,58 @@
 (ns umlaut.generators.graphql
   (:require [clojure.java.io :as io]
-            [umlaut.models :as model]
-            [clojure.spec :as s]
-            [clojure.spec.test :as stest]))
+            [umlaut.utils :refer :all]
+            [umlaut.core :as core]
+            [clojure.string :as string]))
 (use '[clojure.pprint :only [pprint]])
 
 
-(defn- gen-attribute
-  [attribute]
-  (str "  " (:id attribute) ": " (:type-id attribute) "\n"))
+(defn- gen-required [type-obj]
+  "Checks required attribute and returns ! or not"
+  (if (type-obj :required)
+    "!"
+    ""))
 
-(defn- gen-attributes
-  [attributes]
-  (reduce (fn [a attribute] (str a (gen-attribute attribute)))
-          "" attributes))
+(defn- contain-parents? [node]
+  "Whether the type inherits from other types or not"
+  (and (contains? node :parents) (> (count (get node :parents)) 0)))
+
+(defn- check-arity [[from to]]
+  "Returns a boolean indicating if we should represent arity in the graphql"
+  (= from to))
+
+(defn- gen-type-with-arity [type-obj]
+  "Builds the field type properly considering arity"
+  (if (check-arity (type-obj :arity))
+    (type-obj :type-id)
+    (str "[" (type-obj :type-id) "!]")))
+
+(defn- gen-field-type-label [type-obj]
+  "Helper function that concatenates arity + required"
+  (str (gen-type-with-arity type-obj) (gen-required type-obj)))
+
+(defn- gen-field-type-without-params [field]
+  "A field without parameters (attribute) is type with arity + required"
+  (gen-field-type-label (field :return)))
+
+(defn- gen-field-parameters [field]
+  "Iterates over the parameters reusing gen-field-type-label"
+  (string/join ", " (map #(str (% :id) ": " (gen-field-type-label %)) (field :params))))
+
+(defn- gen-field-type [field]
+  "Build the graphql notation for methods and attributes"
+  (if (field :params?)
+    (str "(" (gen-field-parameters field) "): " (gen-field-type-label (field :return)))
+    (str ": " (gen-field-type-without-params field))))
+
+(defn- gen-field
+  [field]
+  (str "  " (field :id) (gen-field-type field) "\n"))
+
+(defn- gen-fields
+  [fields]
+  (reduce (fn [acc field]
+            (str acc (gen-field field)))
+    "" fields))
 
 (defn- gen-enum-values
   [values]
@@ -26,36 +65,48 @@
 (defn- get-identifier-annotation [annotations]
   (or (first (filter #(= (% :key) "identifier") annotations)) []))
 
-(defn- gen-identifier [node]
-  (if
-    (= (count (get-annotations node)) 0)
-    "type"
-    (get (get-identifier-annotation (get-annotations node)) :value)))
+(defn- gen-identifier [kind-str node]
+  (let [annotations (annotations-by-space-key "lang/graphql" "identifier" (node :annotations))]
+    (if (> (count annotations) 0)
+      (if (= (count annotations) 1)
+        ((first annotations) :value)
+        (do
+          (println (str "WARNING: More than one identifier annotation found for declaration block " (node :id)))
+          ((first annotations) :value)))
+      kind-str)))
 
-(defmulti gen-entry (fn [obj] (first obj)))
+(defn- gen-identifier-label [kind-str node]
+  (let [identifier (gen-identifier kind-str node)]
+    (if (= identifier "schema")
+      identifier
+      (str identifier " " (node :id)))))
 
-(defmethod gen-entry :type [[_ body]]
-  (str (gen-identifier body) " " (:id body) " {\n"
-       (gen-attributes (:attributes body))
-       "}\n\n"))
-
-(defmethod gen-entry :enum [[_ body]]
+(defn- gen-entry-enum [body]
   (str "enum " (:id body) " {\n"
        (gen-enum-values (:values body))
        "}\n\n"))
 
-(defmethod gen-entry :default [[_ body]]
-  "")
+(defn- gen-entry-others [kind-str body]
+  (str
+    (gen-identifier-label kind-str body)
+    (when (contain-parents? body)
+      (str " implements " (string/join "," (map #(% :type-id) (body :parents)))))
+    " {\n"
+      (gen-fields (body :fields))
+    "}\n\n"))
 
-(defn write-file [filename content]
-  (with-open [w (clojure.java.io/writer (str "output/" filename))]
-    (.write w content)))
+(defn- gen-entry
+  [[kind node]]
+  (case kind
+    :type (gen-entry-others "type" node)
+    :interface (gen-entry-others "interface" node)
+    :enum (gen-entry-enum node)
+    ""))
 
 (defn gen
-  [namespaces]
+  [umlaut]
   (reduce (fn [acc [key node]]
             (str acc (gen-entry node)))
-          "" (seq (namespaces :nodes))))
+          "" (seq (umlaut :nodes))))
 
-(write-file "main.graphql" (gen (umlaut.core/-main "test/graphql")))
-(pprint (gen (umlaut.core/-main "test/graphql")))
+(save-string-to-file "output/main.graphql" (gen (umlaut.core/main "test/philz/main.umlaut")))
