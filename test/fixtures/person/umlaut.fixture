@@ -1,38 +1,44 @@
 {:nodes
  {"Person"
-  [:type
+  [:interface
    {:id "Person",
-    :attributes
-    [{:type-id "String", :arity [1 1], :id "name", :required true}],
-    :methods [],
+    :fields
+    [{:id "name",
+      :return {:type-id "String", :arity [1 1], :required true},
+      :params [],
+      :params? false}],
     :parents [],
     :annotations []}],
   "Employee"
   [:type
    {:id "Employee",
-    :attributes
-    [{:type-id "Float", :arity [1 1], :id "salary", :required true}
-     {:type-id "RelationshipStatus",
-      :arity [1 1],
-      :id "status",
-      :required true}
-     {:type-id "Profession",
-      :arity [1 1],
-      :id "profession",
-      :required false}
-     {:type-id "String",
-      :arity [0 "n"],
-      :id "friends",
-      :required true}],
-    :methods
-    [{:id "changeSalary",
+    :fields
+    [{:id "salary",
+      :return {:type-id "Float", :arity [1 1], :required true},
+      :params [],
+      :params? false}
+     {:id "status",
+      :return
+      {:type-id "RelationshipStatus", :arity [1 1], :required true},
+      :params [],
+      :params? false}
+     {:id "profession",
+      :return {:type-id "Profession", :arity [1 1], :required false},
+      :params [],
+      :params? false}
+     {:id "changeSalary",
       :return {:type-id "Float", :arity [1 1], :required true},
       :params
       [{:type-id "Float",
         :arity [1 1],
         :id "newSalary",
         :relationship-type :attribute,
-        :required true}]}],
+        :required true}],
+      :params? true}
+     {:id "friends",
+      :return {:type-id "String", :arity [0 "n"], :required true},
+      :params [],
+      :params? false}],
     :parents [{:type-id "Person"}],
     :annotations []}],
   "RelationshipStatus"
@@ -40,20 +46,22 @@
   "QueryRoot"
   [:type
    {:id "QueryRoot",
-    :attributes [],
-    :methods
+    :fields
     [{:id "getFriends",
       :return {:type-id "Person", :arity [0 "n"], :required true},
-      :params []}],
+      :params [],
+      :params? false}],
     :parents [],
     :annotations
     [{:space "lang/lacinia", :key "identifier", :value "query"}]}],
   "Profession"
   [:type
    {:id "Profession",
-    :attributes
-    [{:type-id "String", :arity [1 1], :id "name", :required true}],
-    :methods [],
+    :fields
+    [{:id "name",
+      :return {:type-id "String", :arity [1 1], :required true},
+      :params [],
+      :params? false}],
     :parents [],
     :annotations []}]},
  :diagrams

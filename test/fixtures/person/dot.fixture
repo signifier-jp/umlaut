@@ -13,18 +13,16 @@ digraph G {
     fontsize = 8
     arrowhead = "open"
   ]
-subgraph Employee {
-  label = "Employee"
-  Employee [label = "{Employee|+ salary : Float\l+ status : RelationshipStatus\l+ profession : Profession\l+ friends : String[0..n]\l}"]
-  Person [label = "{Person|+ name : String\l}"]
-  Profession [label = "{Profession|+ name : String\l}"]
-  RelationshipStatus [label = "{\<\<enum\>\>RelationshipStatus|+ Single\l+ Married\l}"]
+subgraph Person {
+  label = "Person"
+  Person [label = "{\<\<interface\>\>Person|name: String\l}"]
+  Employee [label = "{Employee|salary: Float\lstatus: RelationshipStatus\lprofession: Profession?\lchangeSalary(newSalary: Float): Float\lfriends: String[0..n]\l}"]
+  RelationshipStatus [label = "{\<\<enum\>\>RelationshipStatus|Single\lMarried\l}"]
+  QueryRoot [label = "{QueryRoot|getFriends: Person[0..n]\l}"]
+  Profession [label = "{Profession|name: String\l}"]
 }
-Employee -> RelationshipStatus
 
-Employee -> Profession
 edge [arrowhead = "empty"]
-Employee -> Person
 
 edge [arrowhead = "open"]
 

@@ -1,7 +1,6 @@
 (ns umlaut.parser
   (:require [clojure.java.io :as io]
             [instaparse.core :as insta]
-            [umlaut.core :as core]
             [umlaut.utils :as utils]))
 (use '[clojure.pprint :only [pprint]])
 (use '[clojure.string :only (split)])

@@ -8,7 +8,7 @@
 
 (deftest core-test
   (testing "Umlaut input"
-    (is (= fixture (umlaut.core/-main "test/fixtures/person")))))
+    (is (= fixture (umlaut.core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])))))
 
 
 (run-all-tests)

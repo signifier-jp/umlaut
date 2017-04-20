@@ -8,8 +8,8 @@
 
 (deftest dot-test
   (testing "Dot generator test"
-    (is (= fixture (->> (dot/gen-diagrams (umlaut.core/-main "test/fixtures/person"))
-                      (seq) (first) (second))))))
+    (is (= fixture (dot/gen-all
+                    (umlaut.core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))))))
 
 
 (run-all-tests)

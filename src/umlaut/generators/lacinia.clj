@@ -44,19 +44,18 @@
             (merge acc {(keyword (param :id)) (process-variable param)}))
           {} params))
 
-(defn- process-method [method]
+(defn- process-field [field]
   "Receives a method and add an entry in the fields map"
-  (merge {} (process-variable (method :return)) {:args (process-params (method :params))}))
+  (if (field :params?)
+    (merge {} (process-variable (field :return)) {:args (process-params (field :params))})
+    (process-variable (field :return))))
 
 (defn- process-declaration [info]
   "Thread several reduces to build a map of types, args, and resolvers"
-  (as-> (info :attributes) acc
-    (reduce (fn [acc attr]
-              (merge acc {(keyword (attr :id)) (process-variable attr)}))
-            {} acc)
+  (as-> info acc
     (reduce (fn [acc method]
-              (merge acc {(keyword (method :id)) (process-method method)}))
-            acc (info :methods))
+              (merge acc {(keyword (method :id)) (process-field method)}))
+            {} (info :fields))
     (reduce (fn [acc annotation]
               (let [key (keyword (first (annotation :value)))]
                 (merge acc {key (merge (acc key) {:resolve (keyword (second (annotation :value)))})})))
@@ -145,3 +144,5 @@
 (defn gen-lacinia
   [path]
   (gen (core/main path)))
+
+; (pprint (gen-lacinia ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))

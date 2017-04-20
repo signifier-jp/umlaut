@@ -12,14 +12,15 @@
 ;; the umlaut code inside the fixture folder. Changes in the
 ;; code required a manual fixture fix.
 
-(def base "test/fixtures/person/")
+(def ^:private base "test/fixtures/person/")
+(def ^:private umlaut-files [(str base "person.umlaut") (str base "profession.umlaut")])
 
 (defn- gen-umlaut [filename umlaut]
   (save-map-to-file filename umlaut))
 
 (defn- gen-dotstring [filename umlaut]
-  (let [dotstring (first (seq (dot/gen umlaut)))]
-    (save-string-to-file filename (second dotstring))))
+  (let [dotstring (dot/gen-all umlaut)]
+    (save-string-to-file filename dotstring)))
 
 (defn- gen-lacinia [filename umlaut]
   (save-map-to-file filename (lacinia/gen umlaut)))
@@ -29,4 +30,4 @@
   (gen-dotstring (str base "dot.fixture") umlaut)
   (gen-lacinia (str base "lacinia.fixture") umlaut))
 
-(gen-all (umlaut.core/main base))
+(gen-all (umlaut.core/main umlaut-files))
