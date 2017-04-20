@@ -4,11 +4,6 @@ interface RootNode {
   id: ID
 }
 
-@lang/graphql identifier schema
-type schema {
-  query: QueryRoot
-}
-
 type PageInfo {
   hasNextPage: Boolean
   hasPreviousPage: Boolean
@@ -16,11 +11,21 @@ type PageInfo {
   endCursor: String?
 }
 
+type Version {
+  systemID: String
+  description: String?
+  semver: String
+}
+
+
 @lang/lacinia resolver stores resolve-stores
+@lang/lacinia resolver cities resolve-cities
 type ViewerNode : RootNode {
   id: ID
   productGroups: ProductGroupNode[1..n]
   stores(locationSearch: LocationSearchInput?, first: Integer?, after: String?): StoreConnection
+  versions: Version[0..n]
+   cities: CityNode[0..n]
 }
 
 // Location types
@@ -48,9 +53,19 @@ type StoreNode : RootNode {
   id: ID
   name: String
   address: String
+  city: CityNode
+  phone: String
+  monFriHours: String
+  satSunHours: String
   latitude: Float
   longitude: Float
   distance: Float?
+}
+
+type CityNode : RootNode {
+  id: ID
+  name: String
+  stores: StoreNode[0..n]
 }
 
 // Product types
@@ -107,9 +122,34 @@ type KeyValuePair {
   value: String
 }
 
+// Feedbacks
+
+enum RateType {
+  HAPPY UNHAPPY
+}
+
+type RateNode : Node {
+  id: ID
+  order: OrderNode?
+  rateType: RateType
+}
+
+type Feedback {
+  comments: String
+}
+
+
 // Order types
 
 type CartNode : RootNode {
+  id: ID
+  products: ProductNode[1..n]
+  totalCount: Integer
+  totalPrice: Float
+  totalTax: Float
+}
+
+type OrderNode : CartNode {
   id: ID
   products: ProductNode[1..n]
   totalCount: Integer
@@ -133,8 +173,14 @@ type ScheduleEntry {
 @lang/lacinia resolver viewer resolve-viewer
 @lang/lacinia resolver node resolve-node
 type QueryRoot {
-  viewer(): ViewerNode?
+  viewer: ViewerNode?
   node(id: ID): RootNode?
+}
+
+@lang/lacinia identifier mutation
+type MutationRoot {
+  rateOrder(orderID: ID, rate: RateType): RateNode
+  feedback(rateID: ID?, comments: String): Feedback
 }
 
 diagram philz {
