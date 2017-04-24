@@ -133,7 +133,7 @@
       (reduce
         (fn [acc [key node]]
           (merge acc {
-                      :mutations (or (merge (acc :mutations) (gen-node-type node)) {})}))
+                      :mutations (or (merge (acc :mutations) (gen-query-type node)) {})}))
         coll (filter-mutation-nodes nodes-seq))
       (reduce
         (fn [acc [key node]]
