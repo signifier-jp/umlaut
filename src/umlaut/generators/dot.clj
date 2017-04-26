@@ -250,6 +250,7 @@
     group))
 
 (defn gen-all [umlaut]
+  (def ^:private edges (atom []))
   (let [dotstring (->> umlaut
                     (gen-subgraphs-string)
                     (gen-dotstring))]
