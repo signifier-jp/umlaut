@@ -14,20 +14,23 @@ new-line ::= #"\n"
 comment-char ::= "//"
 comment ::= comment-char value <new-line>
 <identifier> ::= #"[_A-Za-z][_0-9A-Za-z]*"
-<value> ::= #"[\d\t\w <\(\[\{\\\^\-:,;'\"%$#@&#=\$!\|\]\}\)\?\*\+\.>]+"
+<value> ::= #"[\d\t\w <\(\[\{\\\^\-:\/,;'%$#@&#=\$!\|\]\}\?\*\+\.>]+"
+<word-value> ::= #"[\d\t\w<\\\^\-:,;'\"%$#@&#=\$!\|\?\*\+\.>]+"
 
 (* high-level section *)
 <statement> ::= <ignored> | type* | enum* | interface* | diagram*
 
 (* annotations *)
 <annotation-space> ::= identifier <"/"> identifier
-annotation ::= <"@"> annotation-space <spacer> identifier <spacer> value+ <spacer>
+annotation ::= <"@"> annotation-space <spacer> identifier <spacer> word-value+ <",">? <spacer>?
+documentation-annotation ::= <"@"> identifier <spacer> <"\""> value+ <"\""> <spacer>? <",">?
+field-annotations ::= <"{"> <ignored> (annotation|documentation-annotation)+ <ignored> <"}">
 
 (* class statement *)
-type ::= annotation* <"type"> <spacer> identifier parent-set? attribute-block
-<attribute-block> ::= <block-start> method+ <block-end>
+type ::= (annotation|documentation-annotation)* <"type"> <spacer> identifier parent-set? attribute-block
+<attribute-block> ::= <block-start> <ignored> method+ <ignored> <block-end>
 attribute ::= <ignored> identifier <ignored> <":"> <ignored> kind optional? <",">?
-method ::= <ignored> identifier <ignored> method-args? <ignored> <":"> <ignored> return-kind
+method ::= identifier <ignored> method-args? <ignored> <":"> <ignored> return-kind <ignored> field-annotations? <ignored>
 <method-args> ::= <group-start> attribute* <group-end>
 arity-value ::= #"[0-9]+" | "n"
 <arity> ::= <"["> arity-value (<".."> arity-value) <"]">
@@ -38,10 +41,10 @@ kind ::= identifier arity?
 parent ::= <ignored> identifier
 
 (* interface statement *)
-interface ::= <"interface"> <spacer> identifier attribute-block
+interface ::= (annotation|documentation-annotation)* <"interface"> <spacer> identifier attribute-block
 
 (* enum statement *)
-enum ::= <"enum"> <spacer> identifier enum-block
+enum ::= documentation-annotation* <"enum"> <spacer> identifier enum-block
 <enum-block> ::= <block-start> enum-entry+ <block-end>
 <enum-entry> ::= <ignored> identifier
 

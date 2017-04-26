@@ -30,8 +30,12 @@
 
 (s/def ::annotation (s/keys :req-un [::space ::key ::value]))
 (s/def ::annotations  (s/coll-of ::annotation :distinct true :into []))
+(s/def ::field-obj (s/or :others (s/coll-of ::annotation :distinct true :into [])
+                         :documentation string?
+                         :deprecation string?))
+(s/def ::field-annotations  (s/map-of keyword? ::field-obj))
 
-(s/def ::method (s/keys :req-un [::id ::return ::params ::params?]))
+(s/def ::method (s/keys :req-un [::id ::return ::params ::params? ::field-annotations]))
 (s/def ::return (s/keys :req-un [::type-id ::required ::arity]))
 (s/def ::fields  (s/coll-of ::method :distinct true :into []))
 

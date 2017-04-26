@@ -47,6 +47,10 @@
               (assoc acc key value)))
     base (seq extension)))
 
+(defn seek [func coll]
+  "Returns the first occurrence when func is true in coll"
+  (first (filter func coll)))
+
 (defn umlaut-base [nodes diagrams]
   "Base map structure of the ast data structure"
   {:nodes nodes :diagrams diagrams})

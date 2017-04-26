@@ -5,6 +5,16 @@
             [clojure.string :as string]))
 (use '[clojure.pprint :only [pprint]])
 
+(defn- gen-documentation [node]
+  (let [docs (first (annotations-by-space :documentation (node :annotations)))]
+    (if docs
+      (str "# " (docs :value) "\n")
+      "")))
+
+(defn- gen-field-documentation [field]
+  (if (contains? (field :field-annotations) :documentation)
+    (str "  # " ((field :field-annotations) :documentation) "\n")
+    ""))
 
 (defn- gen-required [type-obj]
   "Checks required attribute and returns ! or not"
@@ -46,7 +56,9 @@
 
 (defn- gen-field
   [field]
-  (str "  " (field :id) (gen-field-type field) "\n"))
+  (str
+    (gen-field-documentation field)
+    "  " (field :id) (gen-field-type field) "\n"))
 
 (defn- gen-fields
   [fields]
@@ -82,12 +94,15 @@
       (str identifier " " (node :id)))))
 
 (defn- gen-entry-enum [body]
-  (str "enum " (:id body) " {\n"
-       (gen-enum-values (:values body))
-       "}\n\n"))
+  (str
+    (gen-documentation body)
+    "enum " (:id body) " {\n"
+     (gen-enum-values (:values body))
+    "}\n\n"))
 
 (defn- gen-entry-others [kind-str body]
   (str
+    (gen-documentation body)
     (gen-identifier-label kind-str body)
     (when (contain-parents? body)
       (str " implements " (string/join "," (map #(% :type-id) (body :parents)))))
@@ -109,4 +124,5 @@
             (str acc (gen-entry node)))
           "" (seq (umlaut :nodes))))
 
-(save-string-to-file "output/main.graphql" (gen (umlaut.core/main "test/philz/main.umlaut")))
+; (save-string-to-file "output/main.graphql" (gen (umlaut.core/main "test/philz/main.umlaut")))
+; (save-string-to-file "output/main.graphql" (gen (umlaut.core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])))

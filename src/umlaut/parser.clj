@@ -21,7 +21,14 @@
 (defn- to-enum
   "Transforms AST :enum to enum map"
   [id & args]
-  [:enum {:id id :values args}])
+  (let [all (conj args id)
+        realId (first (filter string? all))
+        values (filter #(and (string? %) (not= realId %)) all)
+        annotations (filter #(not (string? %)) all)]
+    [:enum {
+            :id realId
+            :values values
+            :annotations (vec (map second annotations))}]))
 
 (defn- to-kind
   "Transforms AST :kind to kind map"
@@ -47,14 +54,27 @@
   (let [return (second node)]
     (merge return {:required (required? node)})))
 
+(defn- process-annotations [args]
+  (let [field (utils/seek #(= (first %) :field-annotations) args)]
+    (reduce
+      (fn [acc el]
+        (when (= (first el) :annotation)
+          (let [obj (second el)]
+            (case (obj :space)
+              :documentation (assoc acc :documentation (obj :value))
+              :deprecation (assoc acc :deprecation (obj :value))
+              (merge acc {:others (conj (or (acc :others) []) (second el))})))))
+      {} (rest field))))
+
 (defn- to-method
   "Transforms AST :method into method map"
   [id & args]
   (assoc {}
     :id id
-    :return (to-return (last args))
-    :params (to-method-params (drop-last args))
-    :params? (> (count (to-method-params (drop-last args))) 0)
+    :return (to-return (first (filter #(= (first %) :return-kind) args)))
+    :params (to-method-params (filter map? args))
+    :params? (> (count (to-method-params (filter map? args))) 0)
+    :field-annotations (process-annotations args)
     :relationship-type :method))
 
 (defn- to-parent
@@ -100,6 +120,13 @@
                   :key attribute
                   :value (if (= (count parsed) 1) (first parsed) parsed)}]))
 
+(defn- to-documentation-annotation [kind value]
+  (let [annon (case kind
+                "doc" {:space :documentation :key "" :value value}
+                "deprecation" {:space :deprecation :key "" :value value})]
+    [:annotation annon]))
+
+
 (defn- id-list [nodelist]
   "Given a list of nodes, return a list of all node ids"
   (map #(get (second %) :id) nodelist))
@@ -108,6 +135,7 @@
   [ast]
   (let [node-list (insta/transform {:enum to-enum
                                     :annotation to-annotation
+                                    :documentation-annotation to-documentation-annotation
                                     :arity-value #(if (not= "n" %) (read-string %) %)
                                     :kind to-kind
                                     :type (abstract-to-type :type)
@@ -126,3 +154,6 @@
     (pprint (insta/get-failure parsed))
     (transformer parsed)))
 
+
+; (pprint (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
+; (core/main ["test/philz/main.umlaut"])

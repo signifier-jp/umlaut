@@ -44,22 +44,43 @@
             (merge acc {(keyword (param :id)) (process-variable param)}))
           {} params))
 
+(defn- check-add-field-documentation [field out]
+  (if (contains? (field :field-annotations) :documentation)
+    (merge out {:description ((field :field-annotations) :documentation)})
+    out))
+
+(defn- check-add-field-deprecation [field out]
+  (if (contains? (field :field-annotations) :deprecation)
+    (merge out {:isDeprecated true :deprecationReason ((field :field-annotations) :deprecation)})
+    (merge out {:isDeprecated false})))
+
+(defn- check-add-params [field out]
+  (if (field :params?)
+    (merge out {:args (process-params (field :params))})
+    out))
+
+(defn- check-add-resolver [field out]
+  (if (contains? (field :field-annotations) :others)
+    (let [resolver (annotations-by-space-key space "resolver" ((field :field-annotations) :others))]
+      (if (> (count resolver) 0)
+        (merge out {:resolve (keyword ((first resolver) :value))})
+        out))
+    out))
+
 (defn- process-field [field]
   "Receives a method and add an entry in the fields map"
-  (if (field :params?)
-    (merge {} (process-variable (field :return)) {:args (process-params (field :params))})
-    (process-variable (field :return))))
+  (->> (process-variable (field :return))
+    (check-add-field-documentation field)
+    (check-add-field-deprecation field)
+    (check-add-params field)
+    (check-add-resolver field)))
 
 (defn- process-declaration [info]
   "Thread several reduces to build a map of types, args, and resolvers"
   (as-> info acc
     (reduce (fn [acc method]
               (merge acc {(keyword (method :id)) (process-field method)}))
-            {} (info :fields))
-    (reduce (fn [acc annotation]
-              (let [key (keyword (first (annotation :value)))]
-                (merge acc {key (merge (acc key) {:resolve (keyword (second (annotation :value)))})})))
-            acc (annotations-by-space-key space "resolver" (info :annotations)))))
+            {} (info :fields))))
 
 (defn- attr-to-values [info]
   (vec (info :values)))
@@ -67,27 +88,45 @@
 (defn- attr-to-parents [info]
   (vec (map lacinia-type (info :parents))))
 
+(defn- check-add-documentation [node out]
+  (let [docs (first (annotations-by-space :documentation (node :annotations)))]
+    (if docs
+      (merge out {:description (:value docs)})
+      out)))
+
+(defn- check-add-deprecation [node out]
+  (let [deprecation (first (annotations-by-space :deprecation (node :annotations)))]
+    (if deprecation
+      (merge out {:isDeprecated true :deprecationReason (deprecation :value)})
+      (merge out {:isDeprecated false}))))
+
 (defn- gen-node-type [node]
   (when (= (first node) :type)
     (let [info (second node)]
-      (assoc {} (keyword (info :id))
-          {:fields (process-declaration info)
-           :implements (attr-to-parents info)}))))
+      (->> {(keyword (info :id)) {:fields (process-declaration info)
+                                  :implements (attr-to-parents info)}}
+           (check-add-documentation info)
+           (check-add-deprecation info)))))
 
 (defn- gen-node-enum [node]
   (when (= (first node) :enum)
     (let [info (second node)]
-      (assoc {} (keyword (info :id))
-                {:values (attr-to-values info)}))))
+      (->> {(keyword (info :id)) {:values (attr-to-values info)}}
+          (check-add-documentation info)
+          (check-add-deprecation info)))))
 
 (defn- gen-node-interface [node]
   (when (= (first node) :interface)
     (let [info (second node)]
-      (assoc {} (keyword (info :id)) {:fields (process-declaration info)}))))
+      (->> {(keyword (info :id)) {:fields (process-declaration info)}}
+          (check-add-documentation info)
+          (check-add-deprecation info)))))
 
 (defn- gen-query-type [node]
   (let [info (second node)]
-    (merge {} (process-declaration info))))
+    (->> (process-declaration info)
+      (check-add-documentation info)
+      (check-add-deprecation info))))
 
 (defn- annotation-comprarer [key value]
   (fn [node]
@@ -145,4 +184,5 @@
   [path]
   (gen (core/main path)))
 
+; (pprint (gen-lacinia ["test/philz/main.umlaut"]))
 ; (pprint (gen-lacinia ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
