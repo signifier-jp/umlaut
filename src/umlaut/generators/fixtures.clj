@@ -2,6 +2,7 @@
   (:require [clojure.java.io :as io]
             [umlaut.generators.dot :as dot]
             [umlaut.generators.lacinia :as lacinia]
+            [umlaut.generators.graphql :as graphql]
             [umlaut.utils :refer :all]
             [clojure.spec :as s]
             [clojure.spec.test :as stest]))
@@ -15,19 +16,23 @@
 (def ^:private base "test/fixtures/person/")
 (def ^:private umlaut-files [(str base "person.umlaut") (str base "profession.umlaut")])
 
-(defn- gen-umlaut [filename umlaut]
-  (save-map-to-file filename umlaut))
+(defn- gen-umlaut [filename files]
+  (save-map-to-file filename (umlaut.core/main files)))
 
-(defn- gen-dotstring [filename umlaut]
-  (let [dotstring (dot/gen-all umlaut)]
+(defn- gen-dotstring [filename files]
+  (let [dotstring (dot/gen files)]
     (save-string-to-file filename dotstring)))
 
-(defn- gen-lacinia [filename umlaut]
-  (save-map-to-file filename (lacinia/gen umlaut)))
+(defn- gen-lacinia [filename files]
+  (save-map-to-file filename (lacinia/gen files)))
 
-(defn- gen-all [umlaut]
-  (gen-umlaut (str base "umlaut.fixture") umlaut)
-  (gen-dotstring (str base "dot.fixture") umlaut)
-  (gen-lacinia (str base "lacinia.fixture") umlaut))
+(defn- gen-graphql [filename files]
+  (save-string-to-file filename (graphql/gen files)))
 
-(gen-all (umlaut.core/main umlaut-files))
+(defn- gen-all []
+  (gen-umlaut (str base "umlaut.fixture") umlaut-files)
+  (gen-dotstring (str base "dot.fixture") umlaut-files)
+  (gen-lacinia (str base "lacinia.fixture") umlaut-files)
+  (gen-graphql (str base "graphql.fixture") umlaut-files))
+
+(gen-all)

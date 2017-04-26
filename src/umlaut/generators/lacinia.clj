@@ -154,9 +154,10 @@
   (let [all (build-ignored-list nodes)]
     (filter #(not (in? (first %) all)) nodes)))
 
-(defn gen
-  [umlaut]
-  (let [nodes-seq (seq (umlaut :nodes))]
+(defn gen [files]
+  "Returns a clojure map that can be used as a EDN schema"
+  (let [umlaut (core/main files)
+        nodes-seq (seq (umlaut :nodes))]
     (as-> nodes-seq coll
       (reduce
         (fn [acc [key node]]
@@ -180,9 +181,3 @@
                       :queries (or (merge (acc :queries) (gen-query-type node)) {})}))
         coll (filter-query-nodes nodes-seq)))))
 
-(defn gen-lacinia
-  [path]
-  (gen (core/main path)))
-
-; (pprint (gen-lacinia ["test/philz/main.umlaut"]))
-; (pprint (gen-lacinia ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))

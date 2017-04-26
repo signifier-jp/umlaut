@@ -84,7 +84,7 @@
        (first)
        (first)))
 
-(defn gen-subgraph
+(defn- gen-subgraph
   [umlaut]
   (let [ns-id (subgraph-id umlaut)]
    (str "subgraph "
@@ -275,12 +275,9 @@
         (assoc acc (format-filename diagram-name) curr)))
     {} (seq (umlaut :diagrams))))
 
-(defn gen [umlaut]
-  (gen-by-group umlaut)
-  (gen-all umlaut))
+(defn gen [files]
+  "Saves the diagrams in the /output folder"
+  (let [umlaut (core/main files)]
+    (gen-by-group umlaut)
+    (gen-all umlaut)))
 
-(defn gen-diagrams [path]
-  (gen (core/main path)))
-
-; (gen-by-group (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
-; (gen-all (core/main ["test/philz/main.umlaut"]))

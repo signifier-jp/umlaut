@@ -118,11 +118,10 @@
     :enum (gen-entry-enum node)
     ""))
 
-(defn gen
-  [umlaut]
-  (reduce (fn [acc [key node]]
-            (str acc (gen-entry node)))
-          "" (seq (umlaut :nodes))))
+(defn gen [files]
+  "Returns a valid graphQL schema string"
+  (let [umlaut (umlaut.core/main files)]
+    (reduce (fn [acc [key node]]
+              (str acc (gen-entry node)))
+            "" (seq (umlaut :nodes)))))
 
-; (save-string-to-file "output/main.graphql" (gen (umlaut.core/main "test/philz/main.umlaut")))
-; (save-string-to-file "output/main.graphql" (gen (umlaut.core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])))
