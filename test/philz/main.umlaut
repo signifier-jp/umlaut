@@ -4,7 +4,6 @@ interface RootNode {
   id: ID
 }
 
-@doc "Description of PageInfo"
 type PageInfo {
   hasNextPage: Boolean
   hasPreviousPage: Boolean
@@ -25,7 +24,7 @@ type ViewerNode : RootNode {
     @lang/lacinia resolver resolve-stores
   }
   versions: Version[0..n]
-  cities: CityNode[0..n]  {
+  cities: CityNode[0..n] {
     @lang/lacinia resolver resolve-cities
   }
 }
@@ -174,7 +173,6 @@ type ScheduleEntry {
 @lang/lacinia identifier query
 type QueryRoot {
   viewer: ViewerNode? {
-    @doc "This is the viewer node"
     @lang/lacinia resolver resolve-viewer
   }
   node(id: ID): RootNode? {
@@ -183,9 +181,7 @@ type QueryRoot {
 }
 
 @lang/lacinia identifier mutation
-@doc "Description of MutationBla"
 type MutationBla {
-  qwe: String
   rateOrder(orderID: ID, rate: RateType): RateNode
   feedback(rateID: ID?, comments: String): Feedback
 }

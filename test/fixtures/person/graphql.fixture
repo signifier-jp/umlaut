@@ -12,7 +12,7 @@ type Employee implements Person {
   changeSalary(newSalary: Float!): Float!
   friends: [String!]!
   # This is a comment
-  name: String!
+  address: String!
 }
 
 # This is a comment above an enum
