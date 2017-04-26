@@ -8,6 +8,6 @@
 
 (deftest lacinia-test
   (testing "Lacinia generator test"
-    (is (= fixture (lacinia/gen (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))))))
+    (is (= fixture (lacinia/gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])))))
 
 (run-all-tests)

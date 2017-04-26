@@ -1,0 +1,39 @@
+# This is a comment over an interface
+interface Person {
+  # You can also document fields inside the interface
+  name: String!
+}
+
+type Employee implements Person {
+  salary: Float!
+  status: RelationshipStatus!
+  profession: Profession
+  # Changes the salary of an employee
+  changeSalary(newSalary: Float!): Float!
+  friends: [String!]!
+  # This is a comment
+  name: String!
+}
+
+# This is a comment above an enum
+enum RelationshipStatus {
+  Single
+  Married
+}
+
+# An employee inherits from Person
+type QueryRoot {
+  # This is a documentation inside a query field
+  getFriends: [Person!]!
+}
+
+# This is a comment above a mutation
+type MutationRoot {
+  # I can also add documentaiton here
+  mutation: string!
+}
+
+type Profession {
+  name: String!
+}
+

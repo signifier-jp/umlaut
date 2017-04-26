@@ -1,16 +1,54 @@
 {:objects
  {:Employee
   {:fields
-   {:salary {:type (non-null Float)},
-    :status {:type (non-null :RelationshipStatus)},
-    :profession {:type :Profession},
+   {:salary {:type (non-null Float), :isDeprecated false},
+    :status
+    {:type (non-null :RelationshipStatus), :isDeprecated false},
+    :profession {:type :Profession, :isDeprecated false},
     :changeSalary
     {:type (non-null Float),
+     :description "Changes the salary of an employee",
+     :isDeprecated false,
      :args {:newSalary {:type (non-null Float)}}},
-    :friends {:type (non-null (list (non-null String)))}},
+    :friends
+    {:type (non-null (list (non-null String))), :isDeprecated false},
+    :name
+    {:type (non-null String),
+     :description "This is a comment",
+     :isDeprecated true,
+     :deprecationReason "This was deprecated",
+     :resolve :resolve-name}},
    :implements [:Person]},
+  :isDeprecated false,
   :Profession
-  {:fields {:name {:type (non-null String)}}, :implements []}},
- :enums {:RelationshipStatus {:values ["Single" "Married"]}},
- :interfaces {:Person {:fields {:name {:type (non-null String)}}}},
- :queries {:getFriends {:type (non-null (list (non-null :Person)))}}}
+  {:fields {:name {:type (non-null String), :isDeprecated false}},
+   :implements []}},
+ :enums
+ {:RelationshipStatus {:values ["Single" "Married"]},
+  :description "This is a comment above an enum",
+  :isDeprecated true,
+  :deprecationReason "This enum is also deprecated"},
+ :interfaces
+ {:Person
+  {:fields
+   {:name
+    {:type (non-null String),
+     :description "You can also document fields inside the interface",
+     :isDeprecated false}}},
+  :description "This is a comment over an interface",
+  :isDeprecated true,
+  :deprecationReason "This is a comment over an interface"},
+ :mutations
+ {:mutation
+  {:type (non-null string),
+   :description "I can also add documentaiton here",
+   :isDeprecated false},
+  :description "This is a comment above a mutation",
+  :isDeprecated false},
+ :queries
+ {:getFriends
+  {:type (non-null (list (non-null :Person))),
+   :description "This is a documentation inside a query field",
+   :isDeprecated false},
+  :description "An employee inherits from Person",
+  :isDeprecated false}}

@@ -4,6 +4,7 @@ interface RootNode {
   id: ID
 }
 
+@doc "Description of PageInfo"
 type PageInfo {
   hasNextPage: Boolean
   hasPreviousPage: Boolean
@@ -17,15 +18,16 @@ type Version {
   semver: String
 }
 
-
-@lang/lacinia resolver stores resolve-stores
-@lang/lacinia resolver cities resolve-cities
 type ViewerNode : RootNode {
   id: ID
   productGroups: ProductGroupNode[1..n]
-  stores(locationSearch: LocationSearchInput?, first: Integer?, after: String?): StoreConnection
+  stores(locationSearch: LocationSearchInput?, first: Integer?, after: String?): StoreConnection {
+    @lang/lacinia resolver resolve-stores
+  }
   versions: Version[0..n]
-   cities: CityNode[0..n]
+  cities: CityNode[0..n]  {
+    @lang/lacinia resolver resolve-cities
+  }
 }
 
 // Location types
@@ -128,7 +130,7 @@ enum RateType {
   HAPPY UNHAPPY
 }
 
-type RateNode : Node {
+type RateNode : RootNode {
   id: ID
   order: OrderNode?
   rateType: RateType
@@ -149,7 +151,7 @@ type CartNode : RootNode {
   totalTax: Float
 }
 
-type OrderNode : CartNode {
+type OrderNode : RootNode {
   id: ID
   products: ProductNode[1..n]
   totalCount: Integer
@@ -170,19 +172,24 @@ type ScheduleEntry {
 // Putting it all together
 
 @lang/lacinia identifier query
-@lang/lacinia resolver viewer resolve-viewer
-@lang/lacinia resolver node resolve-node
 type QueryRoot {
-  viewer: ViewerNode?
-  node(id: ID): RootNode?
+  viewer: ViewerNode? {
+    @doc "This is the viewer node"
+    @lang/lacinia resolver resolve-viewer
+  }
+  node(id: ID): RootNode? {
+    @lang/lacinia resolver resolve-node
+  }
 }
 
 @lang/lacinia identifier mutation
-type MutationRoot {
+@doc "Description of MutationBla"
+type MutationBla {
+  qwe: String
   rateOrder(orderID: ID, rate: RateType): RateNode
   feedback(rateID: ID?, comments: String): Feedback
 }
 
 diagram philz {
-  (RootNode ViewerNode)!
+  (QueryRoot)!
 }

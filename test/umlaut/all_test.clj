@@ -8,4 +8,5 @@
 (run-tests (find-ns 'umlaut.core-parser-test)
            (find-ns 'umlaut.dot-test)
            (find-ns 'umlaut.utils-test)
-           (find-ns 'umlaut.lacinia-test))
+           (find-ns 'umlaut.lacinia-test)
+           (find-ns 'umlaut.graphql-test))

@@ -6,9 +6,18 @@
     [{:id "name",
       :return {:type-id "String", :arity [1 1], :required true},
       :params [],
-      :params? false}],
+      :params? false,
+      :field-annotations
+      {:documentation
+       "You can also document fields inside the interface"}}],
     :parents [],
-    :annotations []}],
+    :annotations
+    [{:space :deprecation,
+      :key "",
+      :value "This is a comment over an interface"}
+     {:space :documentation,
+      :key "",
+      :value "This is a comment over an interface"}]}],
   "Employee"
   [:type
    {:id "Employee",
@@ -16,16 +25,19 @@
     [{:id "salary",
       :return {:type-id "Float", :arity [1 1], :required true},
       :params [],
-      :params? false}
+      :params? false,
+      :field-annotations {}}
      {:id "status",
       :return
       {:type-id "RelationshipStatus", :arity [1 1], :required true},
       :params [],
-      :params? false}
+      :params? false,
+      :field-annotations {}}
      {:id "profession",
       :return {:type-id "Profession", :arity [1 1], :required false},
       :params [],
-      :params? false}
+      :params? false,
+      :field-annotations {}}
      {:id "changeSalary",
       :return {:type-id "Float", :arity [1 1], :required true},
       :params
@@ -34,15 +46,39 @@
         :id "newSalary",
         :relationship-type :attribute,
         :required true}],
-      :params? true}
+      :params? true,
+      :field-annotations
+      {:documentation "Changes the salary of an employee"}}
      {:id "friends",
       :return {:type-id "String", :arity [0 "n"], :required true},
       :params [],
-      :params? false}],
+      :params? false,
+      :field-annotations {}}
+     {:id "name",
+      :return {:type-id "String", :arity [1 1], :required true},
+      :params [],
+      :params? false,
+      :field-annotations
+      {:others
+       [{:space "lang/lacinia", :key "resolver", :value "resolve-name"}
+        {:space "lang/graphql",
+         :key "resolver",
+         :value "resolve-name2"}],
+       :documentation "This is a comment",
+       :deprecation "This was deprecated"}}],
     :parents [{:type-id "Person"}],
     :annotations []}],
   "RelationshipStatus"
-  [:enum {:id "RelationshipStatus", :values ("Single" "Married")}],
+  [:enum
+   {:id "RelationshipStatus",
+    :values ("Single" "Married"),
+    :annotations
+    [{:space :deprecation,
+      :key "",
+      :value "This enum is also deprecated"}
+     {:space :documentation,
+      :key "",
+      :value "This is a comment above an enum"}]}],
   "QueryRoot"
   [:type
    {:id "QueryRoot",
@@ -50,10 +86,32 @@
     [{:id "getFriends",
       :return {:type-id "Person", :arity [0 "n"], :required true},
       :params [],
-      :params? false}],
+      :params? false,
+      :field-annotations
+      {:documentation
+       "This is a documentation inside a query field"}}],
     :parents [],
     :annotations
-    [{:space "lang/lacinia", :key "identifier", :value "query"}]}],
+    [{:space "lang/lacinia", :key "identifier", :value "query"}
+     {:space :documentation,
+      :key "",
+      :value "An employee inherits from Person"}]}],
+  "MutationRoot"
+  [:type
+   {:id "MutationRoot",
+    :fields
+    [{:id "mutation",
+      :return {:type-id "string", :arity [1 1], :required true},
+      :params [],
+      :params? false,
+      :field-annotations
+      {:documentation "I can also add documentaiton here"}}],
+    :parents [],
+    :annotations
+    [{:space "lang/lacinia", :key "identifier", :value "mutation"}
+     {:space :documentation,
+      :key "",
+      :value "This is a comment above a mutation"}]}],
   "Profession"
   [:type
    {:id "Profession",
@@ -61,7 +119,8 @@
     [{:id "name",
       :return {:type-id "String", :arity [1 1], :required true},
       :params [],
-      :params? false}],
+      :params? false,
+      :field-annotations {}}],
     :parents [],
     :annotations []}]},
  :diagrams

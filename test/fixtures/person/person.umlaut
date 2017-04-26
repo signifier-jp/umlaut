@@ -1,23 +1,51 @@
+@deprecation "This is a comment over an interface"
+@doc "This is a comment over an interface"
 interface Person {
-  name: String
+  name: String {
+    @doc "You can also document fields inside the interface"
+  }
 }
 
+//@lang/lacinia resolver resolve-name
 type Employee : Person {
   salary: Float
   status: RelationshipStatus
   profession: Profession?
   changeSalary(newSalary: Float): Float
+  {
+    @doc "Changes the salary of an employee"
+  }
   friends: String[0..n]
+  name: String
+  {
+      @lang/lacinia resolver resolve-name
+      @lang/graphql resolver resolve-name2
+      @doc "This is a comment"
+      @deprecation "This was deprecated"
+  }
 }
 
+@deprecation "This enum is also deprecated"
+@doc "This is a comment above an enum"
 enum RelationshipStatus {
   Single
   Married
 }
 
 @lang/lacinia identifier query
+@doc "An employee inherits from Person"
 type QueryRoot {
-  getFriends(): Person[0..n]
+  getFriends(): Person[0..n] {
+    @doc "This is a documentation inside a query field"
+  }
+}
+
+@lang/lacinia identifier mutation
+@doc "This is a comment above a mutation"
+type MutationRoot {
+  mutation: string {
+    @doc "I can also add documentaiton here"
+  }
 }
 
 diagram fixture {
