@@ -1,4 +1,4 @@
-(defproject umlaut "0.1.6-SNAPSHOT"
+(defproject umlaut "0.1.7-SNAPSHOT"
   :description "A Clojure program that receives a schema and outputs code."
   :url "https://github.com/workco/umlaut"
   :license {:name "Eclipse Public License"
