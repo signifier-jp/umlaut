@@ -105,28 +105,28 @@
     (let [info (second node)]
       (->> {(keyword (info :id)) {:fields (process-declaration info)
                                   :implements (attr-to-parents info)}}
-           (check-add-documentation info)
-           (check-add-deprecation info)))))
+           (check-add-documentation info)))))
+          ;  (check-add-deprecation info)))))
 
 (defn- gen-node-enum [node]
   (when (= (first node) :enum)
     (let [info (second node)]
       (->> {(keyword (info :id)) {:values (attr-to-values info)}}
-          (check-add-documentation info)
-          (check-add-deprecation info)))))
+          (check-add-documentation info)))))
+          ; (check-add-deprecation info)))))
 
 (defn- gen-node-interface [node]
   (when (= (first node) :interface)
     (let [info (second node)]
       (->> {(keyword (info :id)) {:fields (process-declaration info)}}
-          (check-add-documentation info)
-          (check-add-deprecation info)))))
+          (check-add-documentation info)))))
+          ; (check-add-deprecation info)))))
 
 (defn- gen-query-type [node]
   (let [info (second node)]
     (->> (process-declaration info)
-      (check-add-documentation info)
-      (check-add-deprecation info))))
+      (check-add-documentation info))))
+      ; (check-add-deprecation info))))
 
 (defn- annotation-comprarer [key value]
   (fn [node]
