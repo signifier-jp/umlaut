@@ -61,8 +61,8 @@
   [kind type-obj]
   (case kind
     :type (str (:id type-obj) "|" (fields-list (type-obj :fields)))
-    :interface (str "\\<\\<interface\\>\\>" (:id type-obj) "|" (fields-list (type-obj :fields)))
-    :enum (str "\\<\\<enum\\>\\>" (:id type-obj) "|" (values-list type-obj))
+    :interface (str "\\<\\<interface\\>\\>\\n" (:id type-obj) "|" (fields-list (type-obj :fields)))
+    :enum (str "\\<\\<enum\\>\\>\\n" (:id type-obj) "|" (values-list type-obj))
     ""))
 
 (defn- node-str
@@ -127,16 +127,22 @@
     (filter #(draw-edge? % umlaut) args)))
 
 (defn- method-types-from-node [node umlaut]
-  "Returns a list of Strings of all non primitive types"
-  (map #((% :return) :type-id) (filter-methods-in-map (node :fields) umlaut)))
+  "Returns a list of type objects of all non primitive types"
+  (map #(% :return) (filter-methods-in-map (node :fields) umlaut)))
 
 (defn- method-args-from-node [node umlaut]
-  "Returns a list of Strings of all non primitive types"
-  (map #(% :type-id) (filter-args-in-map (node :fields) umlaut)))
+  "Returns a list of type objects of all non primitive arguments from a method"
+  (filter-args-in-map (node :fields) umlaut))
+
+(defn- build-edge-label [type-obj]
+  (if (type-obj :arity)
+    (let [[from to] (type-obj :arity)]
+      (if (= from to) from (str from ".." to)))
+    ""))
 
 (defn- edge-label [src dst]
   "Returns a dot string that represents an edge"
-  (let [label (str src " -> " dst "\n")]
+  (let [label (str src " -> " (dst :type-id) " [label=\"" (build-edge-label dst) "\"]" "\n")]
     (if (not (in? label (deref edges)))
       (do
         (swap! edges conj label)
@@ -154,13 +160,13 @@
 (defn- build-edges-fields [node umlaut]
   "Builds a string with all the regular edges between a type and its methods"
   (str
-    (string/join "\n" (map (fn [type] (edge-label (node :id) type)) (method-types-from-node node umlaut)))
-    (string/join "\n" (map (fn [type] (edge-params-label (node :id) type)) (method-args-from-node node umlaut)))))
+    (string/join "\n" (map (fn [type-obj] (edge-label (node :id) type-obj)) (method-types-from-node node umlaut)))
+    (string/join "\n" (map (fn [type-obj] (edge-params-label (node :id) type-obj)) (method-args-from-node node umlaut)))))
 
 (defn- build-edges-inheritance [node parents umlaut]
   "Builds a string with all inheritance edges (multiple inheritance case)"
   (string/join "\n" (map (fn [parent]
-                          (edge-inheritance-label (node :id) (get parent :type-id)))
+                          (edge-inheritance-label (node :id) parent))
                       (filter-attr-in-map parents umlaut))))
 
 (defn- contain-parents? [node]
@@ -281,3 +287,5 @@
     (gen-by-group umlaut)
     (gen-all umlaut)))
 
+; (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])
+; (gen ["test/philz/main.umlaut"])
