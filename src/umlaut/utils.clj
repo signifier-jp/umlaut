@@ -87,3 +87,22 @@
 (defn save-string-to-file [filepath content]
   "Receives a file name and a string, saves the string in filepath"
   (spit filepath content))
+
+(defn- get-parent-node [parent umlaut]
+  (second ((umlaut :nodes) (parent :type-id))))
+
+(defn- resolve-field-inheritance [node umlaut]
+  (reduce (fn [acc parent]
+            (concat acc ((get-parent-node parent umlaut) :fields)))
+    (node :fields) (node :parents)))
+
+(defn- resolve-node-inheritance [node umlaut]
+  (assoc node :fields (resolve-field-inheritance node umlaut)))
+
+(defn- resolve-nodes-inheritance [umlaut]
+  (reduce (fn [acc [id [kind obj]]]
+            (assoc acc id [kind (resolve-node-inheritance obj umlaut)]))
+    {} (seq (umlaut :nodes))))
+
+(defn resolve-inheritance [umlaut]
+  (assoc umlaut :nodes (resolve-nodes-inheritance umlaut)))

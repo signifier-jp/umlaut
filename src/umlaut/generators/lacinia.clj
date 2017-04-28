@@ -156,7 +156,7 @@
 
 (defn gen [files]
   "Returns a clojure map that can be used as a EDN schema"
-  (let [umlaut (core/main files)
+  (let [umlaut (resolve-inheritance (core/main files))
         nodes-seq (seq (umlaut :nodes))]
     (as-> nodes-seq coll
       (reduce
@@ -181,3 +181,6 @@
                       :queries (or (merge (acc :queries) (gen-query-type node)) {})}))
         coll (filter-query-nodes nodes-seq)))))
 
+; (pprint (resolve-inheritance (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])))
+; (pprint (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
+; (pprint (gen ["test/philz/main.umlaut"]))
