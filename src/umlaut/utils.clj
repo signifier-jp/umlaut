@@ -2,6 +2,7 @@
     (:require [clojure.string :as string]
       [clojure.spec.gen :as gen]))
 (use '[clojure.pprint :only [pprint]])
+(use '[clojure.java.shell :only [sh]])
 
 (def primitive-types ["String" "Float" "Integer" "Boolean" "DateTime", "ID"])
 
@@ -87,6 +88,13 @@
 (defn save-string-to-file [filepath content]
   "Receives a file name and a string, saves the string in filepath"
   (spit filepath content))
+
+(defn save-dotstring-to-image [filepath content]
+  "Receives a file name and a dotstring, runs dot and saves the resulting image"
+  (let [error (sh "dot" "-Tpng" "-o" filepath :in content)]
+    (if (= (error :exit) 1)
+      (throw (Exception. (with-out-str (pprint error))))
+      (println (str "Saved " filepath)))))
 
 (defn- get-parent-node [parent umlaut]
   (second ((umlaut :nodes) (parent :type-id))))

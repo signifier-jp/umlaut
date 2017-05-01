@@ -260,7 +260,6 @@
   (let [dotstring (->> umlaut
                     (gen-subgraphs-string)
                     (gen-dotstring))]
-    (save-diagram (format-filename "all") dotstring)
     dotstring))
 
 (defn gen-by-group [umlaut]
@@ -277,8 +276,7 @@
                     (remove-extra-nodes diagram-name (create-group group umlaut) umlaut))))
               "")
             (gen-dotstring))]
-        (save-diagram (format-filename diagram-name) curr)
-        (assoc acc (format-filename diagram-name) curr)))
+        (assoc acc diagram-name curr)))
     {} (seq (umlaut :diagrams))))
 
 (defn gen [files]
