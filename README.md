@@ -28,8 +28,10 @@ Field represents two concepts on object oriented languages: attributes and metho
 ```
   firstName: String
   middleName: String?
-  lastName: String  // This is a comment
-  dob: DateTime
+  lastName: String  // This is a comment in the schema source code
+  dob: DateTime {
+    @doc "This is a documentation comment in the dob field"
+  }
   age: Float
   friends: String[0..n]
 ```
@@ -58,7 +60,9 @@ type Person {
 
 - `friends` is an example of a collection.
 - `email` is a nullable attribute.
-- All attributes are primitive in this example.
+- All attributes are primitives in this example.
+- A type can inherit fields from an interface, but it can't from another type. Multiple inheritance is allowed.
+- The list of reserved words should be observed before naming a type.
 
 
 ### interface
@@ -82,7 +86,8 @@ type Employee : Person Human {
 ```
 
 - `umlaut` supports single/multiple inheritance, in this example `Employee` inherits from `Person` and `Human`. So `Employee` will have all the fields of its parent types, plus its own.
-
+- An interface cannot inherit fields from other interfaces.
+- The list of reserved words should be observed before naming an interface.
 
 ### enum
 
@@ -99,16 +104,37 @@ type Person {
 }
 ```
 
+- The list of reserved words should be observed before naming an enum.
+
 ### Annotations
 Annotations above the type declaration are used by a some code generators.
-Annotations have this form: `@<space> key [value]`.
-You can add several values for a given key, only if the generator documentation allows that.
+Annotations have one of these two forms: `@<space> key [value]` or `@<space> [value]`. The second format is used only for documentation purposes.
+In this notation `[value]` is represented between brackets, since you can add more than on value to it. However, this should only be done after understanding a given generator requirement.
 ```
 @lang/lacinia identifier query
 type QueryRoot {
   getFriends(): Person[0..n]
 }
 ```
+
+You can document your schema using the `@doc` space. This can be done above the type/interface/enum definition, like this:
+```
+@doc "This is my new type"
+type New {
+  ...
+}
+```
+
+You can also document specific fields:
+```
+@doc "This is my new type"
+type New {
+  a: String {
+    @doc "This is the comment of field a inside type New"
+  }
+}
+```
+
 See Lacinia documentation for more information.
 
 # Generators
@@ -141,7 +167,6 @@ The above example generates this diagram:
 - The file created is `filename.png` because of the identifier in the `diagram` keyword.
 - The diagram includes the `RelationshipStatus` box because of the `!` used in the `(Person)` group. This tells umlaut to recursively draw all boxes that compose `Person`. If the `!` was omitted, the diagram would have a single `Person` box.
 - You can have as many diagrams definitions/combinations as you want, just give them different names.
-- You can not have types/enums/interfaces with the same names of reserved words of dot language: (node, edge, graph, digraph, subgraph, and strict).
 
 
 ## Lacinia
@@ -154,11 +179,13 @@ enum RelationshipStatus {
   Married
 }
 
-@lang/lacinia resolver salary resolve-salary
 type Person {
   name: String?
   status: RelationshipStatus
-  salary: Float
+  salary: Float {
+    @doc "The annotation below assigns the resolve-salary resolver to the salary field"
+    @lang/lacinia resolver resolve-salary
+  }
 }
 
 @lang/lacinia identifier query
@@ -187,13 +214,33 @@ Will generate:
 
 #### Lacinia annotations
 
-Lacinia generator heavily uses annotations. In the above example, we used `@lang/lacinia identifier query` to indicate that `getFriends` should be placed under the `queries` key.
+Lacinia generator uses annotations heavily. In the above example, we used `@lang/lacinia identifier query` to indicate that `getFriends` should be placed under the `queries` key.
 
 The following annotations are also valid for the lacinia generator. They should all be placed above the type definition that they are affecting.
 ```
 @lang/lacinia resolver resolve-type  // Default type structure from resolve-type method
-@lang/lacinia resolver salary resolve-salary  // Default value for salary in resolve-salary
 @lang/lacinia identifier query  // Will place the next type definition under queries key
 @lang/lacinia identifier mutation  // Will place the next type definition under mutations key
 @lang/lacinia identifier input  // Will place the next type definition under input-objects key
 ```
+
+Just like documentation annotations, you can set resolver to specific fields. This should be done inline, beside the field definition, like this:
+
+```
+type Person {
+  name: String {
+    @doc "Name should hold the entire name, first name + last name"
+    @lang/lacinia resolver resolve-name
+  }
+}
+```
+
+#### List of reserved words:
+
+These words are reserved for any of the supported generators and should not be used when defining a new type/interface/enum or field.
+- node
+- edge
+- graph
+- digraph
+- subgraph
+- strict
