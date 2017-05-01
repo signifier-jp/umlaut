@@ -15,20 +15,20 @@ digraph G {
   ]
 subgraph Person {
   label = "Person"
-  Person [label = "{\<\<interface\>\>Person|name: String\l}"]
+  Person [label = "{\<\<interface\>\>\nPerson|name: String\l}"]
   Employee [label = "{Employee|salary: Float\lstatus: RelationshipStatus\lprofession: Profession?\lchangeSalary(newSalary: Float): Float\lfriends: String[0..n]\laddress: String\l}"]
-  RelationshipStatus [label = "{\<\<enum\>\>RelationshipStatus|Single\lMarried\l}"]
+  RelationshipStatus [label = "{\<\<enum\>\>\nRelationshipStatus|Single\lMarried\l}"]
   QueryRoot [label = "{QueryRoot|getFriends: Person[0..n]\l}"]
   MutationRoot [label = "{MutationRoot|mutation: string\l}"]
   Profession [label = "{Profession|name: String\l}"]
 }
-Employee -> RelationshipStatus
+Employee -> RelationshipStatus [label="1"]
 
-Employee -> Profession
+Employee -> Profession [label="1"]
 edge [arrowhead = "empty"]
-Employee -> Person
+Employee -> Person [label=""]
 
 edge [arrowhead = "open"]
-QueryRoot -> Person
+QueryRoot -> Person [label="0..n"]
 
 }

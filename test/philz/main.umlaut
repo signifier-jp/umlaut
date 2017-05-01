@@ -18,7 +18,6 @@ type Version {
 }
 
 type ViewerNode : RootNode {
-  id: ID
   productGroups: ProductGroupNode[1..n]
   stores(locationSearch: LocationSearchInput?, first: Integer?, after: String?): StoreConnection {
     @lang/lacinia resolver resolve-stores
@@ -51,7 +50,6 @@ type StoreEdge {
 }
 
 type StoreNode : RootNode {
-  id: ID
   name: String
   address: String
   city: CityNode
@@ -64,7 +62,6 @@ type StoreNode : RootNode {
 }
 
 type CityNode : RootNode {
-  id: ID
   name: String
   stores: StoreNode[0..n]
 }
@@ -72,7 +69,6 @@ type CityNode : RootNode {
 // Product types
 
 type ProductNode : RootNode {
-  id: ID
   name: String
   cupImageSrc: String
   backgroundColor: String
@@ -87,7 +83,6 @@ type ProductNode : RootNode {
 }
 
 type ProductGroupNode : RootNode {
-  id: ID
   products: ProductNode[1..n]
   callToAction: String
   soonestAvailableTimeFrame: TimeFrame?
@@ -143,7 +138,6 @@ type Feedback {
 // Order types
 
 type CartNode : RootNode {
-  id: ID
   products: ProductNode[1..n]
   totalCount: Integer
   totalPrice: Float
@@ -151,7 +145,6 @@ type CartNode : RootNode {
 }
 
 type OrderNode : RootNode {
-  id: ID
   products: ProductNode[1..n]
   totalCount: Integer
   totalPrice: Float
