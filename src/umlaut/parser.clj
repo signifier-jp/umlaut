@@ -151,7 +151,8 @@
 (defn parse
   [content]
   (let [parsed (parser content)]
-    (pprint (insta/get-failure parsed))
+    (when (insta/get-failure parsed)
+      (throw (Exception. (with-out-str (pprint (insta/get-failure parsed))))))
     (transformer parsed)))
 
 
