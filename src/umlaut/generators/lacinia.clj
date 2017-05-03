@@ -94,6 +94,7 @@
       (merge out {:description (:value docs)})
       out)))
 
+
 (defn- check-add-deprecation [node out]
   (let [deprecation (first (annotations-by-space :deprecation (node :annotations)))]
     (if deprecation
@@ -103,24 +104,27 @@
 (defn- gen-node-type [node]
   (when (= (first node) :type)
     (let [info (second node)]
-      (->> {(keyword (info :id)) {:fields (process-declaration info)
-                                  :implements (attr-to-parents info)}}
-           (check-add-documentation info)))))
-          ;  (check-add-deprecation info)))))
+      (->> {:fields (process-declaration info)
+            :implements (attr-to-parents info)}
+           (check-add-documentation info)
+          ;  (check-add-deprecation info)
+           (assoc {} (keyword (info :id)))))))
 
 (defn- gen-node-enum [node]
   (when (= (first node) :enum)
     (let [info (second node)]
-      (->> {(keyword (info :id)) {:values (attr-to-values info)}}
-          (check-add-documentation info)))))
-          ; (check-add-deprecation info)))))
+      (->> {:values (attr-to-values info)}
+          (check-add-documentation info)
+          ; (check-add-deprecation info)
+          (assoc {} (keyword (info :id)))))))
 
 (defn- gen-node-interface [node]
   (when (= (first node) :interface)
     (let [info (second node)]
-      (->> {(keyword (info :id)) {:fields (process-declaration info)}}
-          (check-add-documentation info)))))
-          ; (check-add-deprecation info)))))
+      (->> {:fields (process-declaration info)}
+          (check-add-documentation info)
+          ; (check-add-deprecation info)
+          (assoc {} (keyword (info :id)))))))
 
 (defn- gen-query-type [node]
   (let [info (second node)]
