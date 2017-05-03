@@ -93,7 +93,9 @@
   "Receives a file name and a dotstring, runs dot and saves the resulting image"
   (let [error (sh "dot" "-Tpng" "-o" filepath :in content)]
     (if (= (error :exit) 1)
-      (throw (Exception. (with-out-str (pprint error))))
+      (do
+        (println "You need graphiz to generate diagrams, are you sure you have it installed?")
+        (throw (Exception. (with-out-str (pprint error)))))
       (println (str "Saved " filepath)))))
 
 (defn- get-parent-node [parent umlaut]
