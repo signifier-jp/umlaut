@@ -12,8 +12,9 @@ group-start ::= <ignored> <"("> <ignored>
 group-end ::= <ignored> <")"> <ignored>
 new-line ::= #"\n"
 comment-char ::= "//"
-comment ::= comment-char value <new-line>
+comment ::= comment-char comment-value
 <identifier> ::= #"[_A-Za-z][_0-9A-Za-z]*"
+<comment-value> ::= #".*\n"
 <value> ::= #"[\d\t\w <\(\[\{\\\^\-:\/,;'%$#@&#=\$!\|\]\}\?\*\+\.>]+"
 <word-value> ::= #"[\d\t\w<\\\^\-:,;'\"%$#@&#=\$!\|\?\*\+\.>]+"
 
