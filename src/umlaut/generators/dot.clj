@@ -280,5 +280,5 @@
     (gen-by-group umlaut)
     (gen-all umlaut)))
 
-(save-dotstring-to-image "output/all.png" (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
+; (save-dotstring-to-image "output/all.png" (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
 ; (gen ["test/philz/main.umlaut"])
