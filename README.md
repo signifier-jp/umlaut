@@ -168,6 +168,12 @@ The above example generates this diagram:
 - The diagram includes the `RelationshipStatus` box because of the `!` used in the `(Person)` group. This tells umlaut to recursively draw all boxes that compose `Person`. If the `!` was omitted, the diagram would have a single `Person` box.
 - You can have as many diagrams definitions/combinations as you want, just give them different names.
 
+You can specify the colors of a box like this:
+```
+@lang/dot color <color>
+```
+
+This annotation needs to be above the definition of a type/enum/interface. The available colors are defined here: http://www.graphviz.org/doc/info/colors.html
 
 ## Lacinia
 
@@ -234,6 +240,15 @@ type Person {
   }
 }
 ```
+
+You can also add annotations at a global level like this:
+```
+annotations {
+  @lang/lacinia union SearchResult Type1 Type2
+}
+```
+
+For now, this is only used to create unions in lacinia.
 
 #### List of reserved words:
 

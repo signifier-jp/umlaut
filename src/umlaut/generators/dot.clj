@@ -65,13 +65,19 @@
     :enum (str "\\<\\<enum\\>\\>\\n" (:id type-obj) "|" (values-list type-obj))
     ""))
 
+(defn- node-color [type-obj]
+  (let [color (first (annotations-by-space-key "lang/dot" "color" (type-obj :annotations)))]
+    (if color
+      (str " fillcolor = " (color :value) ", style=filled")
+      "")))
+
 (defn- node-str
   "Receives an AST node and generates the dotstring of the node"
   [[kind type-obj]]
   (str "  " (:id type-obj)
     " [label = \"{"
     (node-label kind type-obj)
-    "}\"]"))
+    "}\"" (node-color type-obj) "]"))
 
 (defn- gen-subgraph-content
   [umlaut]
@@ -187,17 +193,6 @@
   "Generate the dot language subgraph and its edges"
   (str (gen-subgraph umlaut) (gen-edges umlaut)))
 
-(defn format-filename [filename]
-  "Ensures that the output file is saved in the output folder"
-  (str "output/" filename ".png"))
-
-(defn save-diagram [filename dotstring]
-  (println (str "Saving " filename))
-  ; (println dotstring)
-  (let [error (sh "dot" "-Tpng" "-o" filename :in dotstring)]
-    (when (= (error :exit) 1)
-      (throw (Exception. (with-out-str (pprint error)))))))
-
 (defn required-nodes [required coll]
   "Returns a map of all the nodes inside of coll that are in the required vector"
   (zipmap (sort required) (map second (sort-by first (filter #(in? (first %) required) coll)))))
@@ -285,5 +280,5 @@
     (gen-by-group umlaut)
     (gen-all umlaut)))
 
-; (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])
+(save-dotstring-to-image "output/all.png" (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
 ; (gen ["test/philz/main.umlaut"])

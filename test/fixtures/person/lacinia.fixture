@@ -22,18 +22,14 @@
     {:type (non-null String),
      :description "You can also document fields inside the interface",
      :isDeprecated false}},
-   :implements [:Person],
-   :isDeprecated false},
+   :implements [:Person]},
   :Profession
   {:fields {:name {:type (non-null String), :isDeprecated false}},
-   :implements [],
-   :isDeprecated false}},
+   :implements []}},
  :enums
  {:RelationshipStatus
   {:values ["Single" "Married"],
-   :description "This is a comment above an enum",
-   :isDeprecated true,
-   :deprecationReason "This enum is also deprecated"}},
+   :description "This is a comment above an enum"}},
  :interfaces
  {:Person
   {:fields
@@ -41,20 +37,17 @@
     {:type (non-null String),
      :description "You can also document fields inside the interface",
      :isDeprecated false}},
-   :description "This is a comment over an interface",
-   :isDeprecated true,
-   :deprecationReason "This is a comment over an interface"}},
+   :description "This is a comment over an interface"}},
  :mutations
  {:mutation
   {:type (non-null string),
    :description "I can also add documentaiton here",
    :isDeprecated false},
-  :description "This is a comment above a mutation",
-  :isDeprecated false},
+  :description "This is a comment above a mutation"},
  :queries
  {:getFriends
   {:type (non-null (list (non-null :Person))),
    :description "This is a documentation inside a query field",
    :isDeprecated false},
-  :description "An employee inherits from Person",
-  :isDeprecated false}}
+  :description "An employee inherits from Person"},
+ :unions {:Result {:members [:Person :Profession]}}}

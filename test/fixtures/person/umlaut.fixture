@@ -17,7 +17,8 @@
       :value "This is a comment over an interface"}
      {:space :documentation,
       :key "",
-      :value "This is a comment over an interface"}]}],
+      :value "This is a comment over an interface"}
+     {:space "lang/dot", :key "color", :value "lightyellow"}]}],
   "Employee"
   [:type
    {:id "Employee",
@@ -67,13 +68,15 @@
        :documentation "This is a comment",
        :deprecation "This was deprecated"}}],
     :parents [{:type-id "Person"}],
-    :annotations []}],
+    :annotations
+    [{:space "lang/dot", :key "color", :value "navajowhite"}]}],
   "RelationshipStatus"
   [:enum
    {:id "RelationshipStatus",
     :values ("Single" "Married"),
     :annotations
-    [{:space :deprecation,
+    [{:space "lang/dot", :key "color", :value "lightblue"}
+     {:space :deprecation,
       :key "",
       :value "This enum is also deprecated"}
      {:space :documentation,
@@ -111,7 +114,8 @@
     [{:space "lang/lacinia", :key "identifier", :value "mutation"}
      {:space :documentation,
       :key "",
-      :value "This is a comment above a mutation"}]}],
+      :value "This is a comment above a mutation"}
+     {:space "lang/dot", :key "color", :value "aquamarine"}]}],
   "Profession"
   [:type
    {:id "Profession",
@@ -124,4 +128,11 @@
     :parents [],
     :annotations []}]},
  :diagrams
- {"fixture" [:diagram {:id "fixture", :groups [["Employee" "!"]]}]}}
+ {"fixture" [:diagram {:id "fixture", :groups [["Employee" "!"]]}]},
+ :annotations
+ ({:space "lang/lacinia",
+   :key "union",
+   :value ["Result" "Person" "Profession"]}
+  {:space "lang/graphql",
+   :key "union",
+   :value ["Result" "Person" "Profession"]})}

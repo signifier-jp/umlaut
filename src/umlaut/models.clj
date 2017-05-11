@@ -62,5 +62,9 @@
                    :type ::type-obj
                    :interface ::interface-obj
                    :diagram ::diagram-obj))
-(s/def ::objs (s/map-of string? ::obj))
+
+(s/def ::objs (s/or :diagrams (s/map-of string? ::obj)
+                    :nodes (s/map-of string? ::obj)
+                    :annotations ::annotations))
+
 (s/def ::namespaces (s/map-of keyword? ::objs))

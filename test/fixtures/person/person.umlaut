@@ -1,5 +1,6 @@
 @deprecation "This is a comment over an interface"
 @doc "This is a comment over an interface"
+@lang/dot color lightyellow
 interface Person {
   name: String {
     @doc "You can also document fields inside the interface"
@@ -7,6 +8,7 @@ interface Person {
 }
 
 //@lang/lacinia resolver resolve-name
+@lang/dot color navajowhite
 type Employee : Person {
   salary: Float
   status: RelationshipStatus
@@ -25,6 +27,7 @@ type Employee : Person {
   }
 }
 
+@lang/dot color lightblue
 @deprecation "This enum is also deprecated"
 @doc "This is a comment above an enum"
 enum RelationshipStatus {
@@ -42,10 +45,16 @@ type QueryRoot {
 
 @lang/lacinia identifier mutation
 @doc "This is a comment above a mutation"
+@lang/dot color aquamarine
 type MutationRoot {
   mutation: string {
     @doc "I can also add documentaiton here"
   }
+}
+
+annotations {
+  @lang/lacinia union Result Person Profession
+  @lang/graphql union Result Person Profession
 }
 
 diagram fixture {

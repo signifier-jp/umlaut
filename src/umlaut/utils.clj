@@ -19,6 +19,11 @@
   [node]
   (= (first node) :diagram))
 
+(defn annotations?
+  "Whether an AST node is an annotations node or not"
+  [node]
+  (= (first node) :annotations))
+
 (defn type?
   "Whether an AST node is a type node or not"
   [node]

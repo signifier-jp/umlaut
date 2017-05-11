@@ -39,3 +39,4 @@ type Profession {
   name: String!
 }
 
+union Result = Person | Profession

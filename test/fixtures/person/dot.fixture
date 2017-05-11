@@ -15,11 +15,11 @@ digraph G {
   ]
 subgraph Person {
   label = "Person"
-  Person [label = "{\<\<interface\>\>\nPerson|name: String\l}"]
-  Employee [label = "{Employee|salary: Float\lstatus: RelationshipStatus\lprofession: Profession?\lchangeSalary(newSalary: Float): Float\lfriends: String[0..n]\laddress: String\l}"]
-  RelationshipStatus [label = "{\<\<enum\>\>\nRelationshipStatus|Single\lMarried\l}"]
+  Person [label = "{\<\<interface\>\>\nPerson|name: String\l}" fillcolor = lightyellow, style=filled]
+  Employee [label = "{Employee|salary: Float\lstatus: RelationshipStatus\lprofession: Profession?\lchangeSalary(newSalary: Float): Float\lfriends: String[0..n]\laddress: String\l}" fillcolor = navajowhite, style=filled]
+  RelationshipStatus [label = "{\<\<enum\>\>\nRelationshipStatus|Single\lMarried\l}" fillcolor = lightblue, style=filled]
   QueryRoot [label = "{QueryRoot|getFriends: Person[0..n]\l}"]
-  MutationRoot [label = "{MutationRoot|mutation: string\l}"]
+  MutationRoot [label = "{MutationRoot|mutation: string\l}" fillcolor = aquamarine, style=filled]
   Profession [label = "{Profession|name: String\l}"]
 }
 Employee -> RelationshipStatus [label="1"]
