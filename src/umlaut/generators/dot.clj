@@ -56,13 +56,18 @@
   [{:keys [values]}]
   (reduce #(str %1 %2 "\\l") "" values))
 
+(defn- enum-or-union [type-obj]
+  (if (first (annotations-by-key-value "identifier" "union" (type-obj :annotations)))
+    "union"
+    "enum"))
+
 (defn- node-label
   "Builds the string regarding object type"
   [kind type-obj]
   (case kind
     :type (str (:id type-obj) "|" (fields-list (type-obj :fields)))
     :interface (str "\\<\\<interface\\>\\>\\n" (:id type-obj) "|" (fields-list (type-obj :fields)))
-    :enum (str "\\<\\<enum\\>\\>\\n" (:id type-obj) "|" (values-list type-obj))
+    :enum (str "\\<\\< " (enum-or-union type-obj) "\\>\\>\\n" (:id type-obj) "|" (values-list type-obj))
     ""))
 
 (defn- node-color [type-obj]

@@ -132,26 +132,30 @@
       (check-add-documentation info))))
       ; (check-add-deprecation info))))
 
-(defn- annotation-comprarer [key value]
-  (fn [node]
-    (let [annotations (annotations-by-space space ((last (last node)) :annotations))]
-      (> (->> annotations
-          (filter #(and (= value (% :value)) (= "identifier" (% :key))))
-          (count)) 0))))
+(defn- gen-union-type [node]
+  (when (= (first node) :enum)
+    (let [info (second node)]
+      (->> {:members (vec (map keyword (info :values)))}
+        (check-add-documentation info)
+        (assoc {} (keyword (info :id)))))))
 
 (defn- filter-input-nodes [nodes]
-  (filter (annotation-comprarer "identifier" "input") nodes))
+  (filter (annotation-comprarer space "identifier" "input") nodes))
 
 (defn- filter-mutation-nodes [nodes]
-  (filter (annotation-comprarer "identifier" "mutation") nodes))
+  (filter (annotation-comprarer space "identifier" "mutation") nodes))
 
 (defn- filter-query-nodes [nodes]
-  (filter (annotation-comprarer "identifier" "query") nodes))
+  (filter (annotation-comprarer space "identifier" "query") nodes))
+
+(defn- filter-union-nodes [nodes]
+  (filter (annotation-comprarer space "identifier" "union") nodes))
 
 (defn- build-ignored-list [nodes]
   (flatten (list
             (map first (filter-input-nodes nodes))
             (map first (filter-mutation-nodes nodes))
+            (map first (filter-union-nodes nodes))
             (map first (filter-query-nodes nodes)))))
 
 (defn- filter-other-nodes [nodes]
@@ -179,6 +183,11 @@
           (merge acc {
                       :mutations (or (merge (acc :mutations) (gen-query-type node)) {})}))
         coll (filter-mutation-nodes nodes-seq))
+      (reduce
+        (fn [acc [key node]]
+          (merge acc {
+                      :unions (or (merge (acc :unions) (gen-union-type node)) {})}))
+        coll (filter-union-nodes nodes-seq))
       (reduce
         (fn [acc [key node]]
           (merge acc {

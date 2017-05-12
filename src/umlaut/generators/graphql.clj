@@ -118,11 +118,34 @@
     :enum (gen-entry-enum node)
     ""))
 
+(defn- gen-union-entry [[kind body]]
+  (str
+    (gen-documentation body)
+    (str "union " (body :id) " = " (string/join " | " (body :values)))
+    "\n\n"))
+
+(defn- filter-union-nodes [nodes]
+  (filter (annotation-comprarer "lang/graphql" "identifier" "union") nodes))
+
+(defn- build-ignored-list [nodes]
+  (flatten (list
+            (map first (filter-union-nodes nodes)))))
+
+(defn- filter-other-nodes [nodes]
+  (let [all (build-ignored-list nodes)]
+    (filter #(not (in? (first %) all)) nodes)))
+
 (defn gen [files]
   "Returns a valid graphQL schema string"
-  (let [umlaut (resolve-inheritance (umlaut.core/main files))]
-    (reduce (fn [acc [key node]]
-              (str acc (gen-entry node)))
-            "" (seq (umlaut :nodes)))))
+  (let [umlaut (resolve-inheritance (umlaut.core/main files))
+        nodes-seq (seq (umlaut :nodes))]
+    (as-> nodes-seq coll
+      (reduce (fn [acc [key node]]
+                (str acc (gen-entry node)))
+              "" (filter-other-nodes coll))
+      (reduce (fn [acc [key node]]
+                (str acc (gen-union-entry node)))
+              coll (filter-union-nodes nodes-seq)))))
 
 
+; (save-string-to-file "output/main.graphql" (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))

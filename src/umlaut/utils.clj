@@ -81,6 +81,14 @@
   "Filter an array of annotation by space, key, and value"
   (filter #(and (= space (% :space)) (= value (% :value)) (= key (% :key))) annotations))
 
+(defn annotation-comprarer [space key value]
+  "To be used as filter function of (seq (umlaut :nodes))"
+  (fn [node]
+    (let [annotations (annotations-by-space space ((last (last node)) :annotations))]
+      (> (->> annotations
+          (filter #(and (= value (% :value)) (= "identifier" (% :key))))
+          (count)) 0))))
+
 (defn save-map-to-file [filepath content]
   "Receives a file name and a map, prints the map into a string and saves the string in filepath"
   (spit filepath (with-out-str (pprint content))))
