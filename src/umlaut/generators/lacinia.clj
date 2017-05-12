@@ -132,11 +132,6 @@
       (check-add-documentation info))))
       ; (check-add-deprecation info))))
 
-(defn- gen-union-type [annotation]
-  (let [id (first (annotation :value))
-        members (rest (annotation :value))]
-    {(keyword id) {:members (vec (map keyword members))}}))
-
 (defn- annotation-comprarer [key value]
   (fn [node]
     (let [annotations (annotations-by-space space ((last (last node)) :annotations))]
@@ -188,12 +183,7 @@
         (fn [acc [key node]]
           (merge acc {
                       :queries (or (merge (acc :queries) (gen-query-type node)) {})}))
-        coll (filter-query-nodes nodes-seq))
-      (reduce
-        (fn [acc annotation]
-          (merge acc {
-                      :unions (or (merge (acc :unions) (gen-union-type annotation)) {})}))
-        coll (annotations-by-space-key space "union" (umlaut :annotations))))))
+        coll (filter-query-nodes nodes-seq)))))
 
 ; (pprint (resolve-inheritance (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])))
 ; (pprint (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))

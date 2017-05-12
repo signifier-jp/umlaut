@@ -120,11 +120,6 @@
                   :key attribute
                   :value (if (= (count parsed) 1) (first parsed) parsed)}]))
 
-(defn- to-annotations
-  "Transforms AST :annotation to annotation map"
-  [id & args]
-  [:annotations (flatten (conj [] (second id) (map second args)))])
-
 (defn- to-documentation-annotation [kind value]
   (let [annon (case kind
                 "doc" {:space :documentation :key "" :value value}
@@ -139,7 +134,6 @@
 (defn- transformer
   [ast]
   (let [node-list (insta/transform {:enum to-enum
-                                    :annotations to-annotations
                                     :annotation to-annotation
                                     :documentation-annotation to-documentation-annotation
                                     :arity-value #(if (not= "n" %) (read-string %) %)
@@ -152,8 +146,8 @@
                                     :diagram to-diagram
                                     :diagram-group to-diagram-group} ast)]
       {:nodes (zipmap (id-list (filter utils/type-interface-or-enum? node-list)) (filter utils/type-interface-or-enum? node-list))
-       :diagrams (zipmap (id-list (filter utils/diagram? node-list)) (filter utils/diagram? node-list))
-       :annotations (flatten (map second (filter utils/annotations? node-list)))}))
+       :diagrams (zipmap (id-list (filter utils/diagram? node-list)) (filter utils/diagram? node-list))}))
+
 (defn parse
   [content]
   (let [parsed (parser content)]

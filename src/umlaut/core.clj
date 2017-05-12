@@ -17,9 +17,7 @@
       (reduce (fn [acc filename]
                 (let [parsed (parse (slurp filename))]
                   (utils/map-extend acc {:nodes (parsed :nodes)
-                                          :diagrams (parsed :diagrams)
-                                          :annotations (concat (acc :annotations) (parsed :annotations))})))
-              {})))
+                                          :diagrams (parsed :diagrams)}))) {})))
 
 (defn- read-folder [path]
   "Validate all the umlaut code parsed from a folder"
@@ -38,6 +36,3 @@
         :ret ::model/namespaces)
 
 (stest/instrument `main)
-
-
-; (pprint (read-folder ["test/fixtures/person/person.umlaut"  "test/fixtures/person/profession.umlaut"]))
