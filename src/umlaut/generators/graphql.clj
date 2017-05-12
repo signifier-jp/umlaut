@@ -110,11 +110,6 @@
       (gen-fields (body :fields))
     "}\n\n"))
 
-(defn- gen-union-entry [annotation]
-  (let [id (first (annotation :value))
-        members (rest (annotation :value))]
-    (str "union " id " = " (string/join " | " members))))
-
 (defn- gen-entry
   [[kind node]]
   (case kind
@@ -126,12 +121,8 @@
 (defn gen [files]
   "Returns a valid graphQL schema string"
   (let [umlaut (resolve-inheritance (umlaut.core/main files))]
-    (as-> (seq (umlaut :nodes)) coll
-      (reduce (fn [acc [key node]]
-                (str acc (gen-entry node)))
-        "" coll)
-      (reduce (fn [acc annotation]
-                (str acc (gen-union-entry annotation)))
-        coll (annotations-by-space-key "lang/graphql" "union" (umlaut :annotations))))))
+    (reduce (fn [acc [key node]]
+              (str acc (gen-entry node)))
+            "" (seq (umlaut :nodes)))))
 
-; (save-string-to-file "output/main.grapql" (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
+
