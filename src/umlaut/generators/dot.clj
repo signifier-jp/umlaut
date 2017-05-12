@@ -16,6 +16,9 @@
 ;; Store all edges added in a subgraph, so we don't have redundant edges
 (def ^:private edges (atom []))
 
+(defn- union? [node]
+  (> (count (annotations-by-key-value "identifier" "union" (node :annotations))) 0))
+
 (defn- arity-label
   "Builds the arity representation string in the diagram"
   [[from to]]
@@ -57,7 +60,7 @@
   (reduce #(str %1 %2 "\\l") "" values))
 
 (defn- enum-or-union [type-obj]
-  (if (first (annotations-by-key-value "identifier" "union" (type-obj :annotations)))
+  (if (union? type-obj)
     "union"
     "enum"))
 
@@ -165,8 +168,12 @@
   (str "edge [arrowhead = \"empty\"]\n" (edge-label src dst) "\nedge [arrowhead = \"open\"]\n"))
 
 (defn- edge-params-label [src dst]
-  "Returns a dot string that represents an inheritance edge"
+  "Returns a dot string that represents an argument edge"
   (str (edge-label src dst) " [style=dotted]\n"))
+
+(defn- edge-union-label [src dst]
+  "Returns a dot string that represents an union edge"
+  (str (edge-label src {:type-id dst :arity [1 1]}) " [style=dashed]\n"))
 
 (defn- build-edges-fields [node umlaut]
   "Builds a string with all the regular edges between a type and its methods"
@@ -180,6 +187,9 @@
                           (edge-inheritance-label (node :id) parent))
                       (filter-attr-in-map parents umlaut))))
 
+(defn- build-edges-union [node]
+  (string/join "\n" (map (fn [value] (edge-union-label (node :id) value)) (node :values))))
+
 (defn- contain-parents? [node]
   "Whether the type inherits from other types or not"
   (and (contains? node :parents) (> (count (get node :parents)) 0)))
@@ -190,6 +200,8 @@
   (reduce (fn [acc [_ node]]
             (let [block (second node)]
               (str acc (build-edges-fields block umlaut)
+                (when (union? block)
+                  (build-edges-union block))
                 (when (contain-parents? block)
                   (build-edges-inheritance block (block :parents) umlaut)))))
    "" (seq (umlaut :nodes))))
@@ -222,7 +234,9 @@
 (defn- non-primitive-related-nodes [node]
   "Returns a list of Strings of all non primitive types"
   (if node
-    (filter-not-primitives-methods (node :fields))
+    (if (union? node)
+      (distinct (filter not-primitive? (node :values)))
+      (filter-not-primitives-methods (node :fields)))
     ()))
 
 (defn- adjacent-nodes [key graph]
@@ -285,5 +299,8 @@
     (gen-by-group umlaut)
     (gen-all umlaut)))
 
+; (save-string-to-file "output/a.dot" (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
 ; (save-dotstring-to-image "output/all.png" (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
-; (gen ["test/philz/main.umlaut"])
+; (save-dotstring-to-image "output/philz.png" (gen ["test/philz/main.umlaut"]))
+; (save-dotstring-to-image "output/products.png" (get (gen-by-group (core/main ["test/philz/main.umlaut"])) "Products"))
+; (save-dotstring-to-image "output/employee.png" (get (gen-by-group (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])) "fixture"))
