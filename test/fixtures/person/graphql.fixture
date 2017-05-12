@@ -25,6 +25,7 @@ enum RelationshipStatus {
 
 # An employee inherits from Person
 type QueryRoot {
+  unionQuery: UnionType!
   # This is a documentation inside a query field
   getFriends: [Person!]!
 }
@@ -39,4 +40,6 @@ type Profession {
   name: String!
 }
 
-union Result = Person | Profession
+# This is an union type
+union UnionType = Person | Profession
+

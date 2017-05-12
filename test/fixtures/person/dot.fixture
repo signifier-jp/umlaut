@@ -17,9 +17,10 @@ subgraph Person {
   label = "Person"
   Person [label = "{\<\<interface\>\>\nPerson|name: String\l}" fillcolor = lightyellow, style=filled]
   Employee [label = "{Employee|salary: Float\lstatus: RelationshipStatus\lprofession: Profession?\lchangeSalary(newSalary: Float): Float\lfriends: String[0..n]\laddress: String\l}" fillcolor = navajowhite, style=filled]
-  RelationshipStatus [label = "{\<\<enum\>\>\nRelationshipStatus|Single\lMarried\l}" fillcolor = lightblue, style=filled]
-  QueryRoot [label = "{QueryRoot|getFriends: Person[0..n]\l}"]
+  RelationshipStatus [label = "{\<\< enum\>\>\nRelationshipStatus|Single\lMarried\l}" fillcolor = lightblue, style=filled]
+  QueryRoot [label = "{QueryRoot|unionQuery: UnionType\lgetFriends: Person[0..n]\l}"]
   MutationRoot [label = "{MutationRoot|mutation: string\l}" fillcolor = aquamarine, style=filled]
+  UnionType [label = "{\<\< union\>\>\nUnionType|Person\lProfession\l}"]
   Profession [label = "{Profession|name: String\l}"]
 }
 Employee -> RelationshipStatus [label="1"]
@@ -29,6 +30,13 @@ edge [arrowhead = "empty"]
 Employee -> Person [label=""]
 
 edge [arrowhead = "open"]
+QueryRoot -> UnionType [label="1"]
+
 QueryRoot -> Person [label="0..n"]
+UnionType -> Person [label="1"]
+ [style=dashed]
+
+UnionType -> Profession [label="1"]
+ [style=dashed]
 
 }

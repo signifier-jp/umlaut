@@ -86,7 +86,12 @@
   [:type
    {:id "QueryRoot",
     :fields
-    [{:id "getFriends",
+    [{:id "unionQuery",
+      :return {:type-id "UnionType", :arity [1 1], :required true},
+      :params [],
+      :params? false,
+      :field-annotations {}}
+     {:id "getFriends",
       :return {:type-id "Person", :arity [0 "n"], :required true},
       :params [],
       :params? false,
@@ -116,6 +121,16 @@
       :key "",
       :value "This is a comment above a mutation"}
      {:space "lang/dot", :key "color", :value "aquamarine"}]}],
+  "UnionType"
+  [:enum
+   {:id "UnionType",
+    :values ("Person" "Profession"),
+    :annotations
+    [{:space "lang/lacinia", :key "identifier", :value "union"}
+     {:space "lang/graphql", :key "identifier", :value "union"}
+     {:space :documentation,
+      :key "",
+      :value "This is an union type"}]}],
   "Profession"
   [:type
    {:id "Profession",
@@ -128,11 +143,4 @@
     :parents [],
     :annotations []}]},
  :diagrams
- {"fixture" [:diagram {:id "fixture", :groups [["Employee" "!"]]}]},
- :annotations
- ({:space "lang/lacinia",
-   :key "union",
-   :value ["Result" "Person" "Profession"]}
-  {:space "lang/graphql",
-   :key "union",
-   :value ["Result" "Person" "Profession"]})}
+ {"fixture" [:diagram {:id "fixture", :groups [["QueryRoot" "!"]]}]}}

@@ -1,31 +1,35 @@
 // Foundational types
 
+@lang/dot color forestgreen
 interface RootNode {
-  id: ID
-}
-
-type PageInfo {
-  hasNextPage: Boolean
-  hasPreviousPage: Boolean
-  startCursor: String?
-  endCursor: String?
+  id: ID {
+    @doc "Relay-specific opaque ID of this entity. It must always return the same entity as represented by the server at that request time."
+  }
 }
 
 type Version {
-  systemID: String
-  description: String?
-  semver: String
+  systemId: String {
+    @doc "The ID of the system this version refers to"
+  }
+  description: String? {
+    @doc "A free-form description of the system this version refers to"
+  }
+  semver: String {
+    @doc "The semver version of the system"
+  }
 }
 
+@lang/dot color gold
 type ViewerNode : RootNode {
-  productGroups: ProductGroupNode[1..n]
-  stores(locationSearch: LocationSearchInput?, first: Integer?, after: String?): StoreConnection {
+  carouselItems(storeId: ID?): CarouselItemNode[1..n]
+  stores(locationSearch: LocationSearchInput?): StoreNode[0..n] {
     @lang/lacinia resolver resolve-stores
   }
   versions: Version[0..n]
   cities: CityNode[0..n] {
     @lang/lacinia resolver resolve-cities
   }
+  productsCatalog(storeId: ID?): ProductNode[0..n]
 }
 
 // Location types
@@ -39,20 +43,13 @@ type LocationSearchInput {
 
 // Store types
 
-type StoreConnection {
-  edges: StoreEdge[1..n]?
-  pageInfo: PageInfo
-}
-
-type StoreEdge {
-  cursor: String
-  node: StoreNode
-}
-
+@lang/dot color crimson
 type StoreNode : RootNode {
   name: String
   address: String
-  city: CityNode
+  city: String {
+    @lang/lacinia resolver resolve-city
+  }
   phone: String
   monFriHours: String
   satSunHours: String
@@ -63,59 +60,138 @@ type StoreNode : RootNode {
 
 type CityNode : RootNode {
   name: String
-  stores: StoreNode[0..n]
+  stores: StoreNode[0..n] {
+    @lang/lacinia resolver resolve-stores
+  }
 }
 
-// Product types
+@lang/lacinia identifier union
+@lang/graphql identifier union
+@lang/dot color forestgreen
+enum VariantNode {
+  VariantSizeNode VariantCreamNode VariantSweetenerNode
+}
 
+@lang/lacinia identifier union
+@lang/graphql identifier union
+enum CarouselItemNode {
+  CarouselRecommendationNode CarouselFavoriteNode CarouselOrderNode
+}
+
+@lang/dot color forestgreen
+enum CreamAmount {
+  EXTRA MEDIUM LIGHT NONE
+}
+
+@lang/dot color forestgreen
+enum SweetenerAmount {
+  EXTRA MEDIUM LIGHT NONE
+}
+
+@lang/dot color forestgreen
+enum SizeType {
+  LARGE SMALL
+}
+
+@lang/dot color forestgreen
+enum SweetenerType {
+  SUGAR HONEY SPLENDA STEVIA SWEETNLOW EQUAL
+}
+
+@lang/dot color forestgreen
+enum CreamType {
+  CREAM WHOLE TWO_PERCENT LOW_FAT NON_FAT ALMOND SOY VANILLA_SOY
+}
+
+@lang/dot color forestgreen
 type ProductNode : RootNode {
   name: String
-  cupImageSrc: String
+  imageUrl: String
   backgroundColor: String
   foregroundColor: String
-  variantSelections: VariantSelection[1..n]
-  availableVariants: AvailableVariant[1..n]
-  ingredientDescription: String
-  ingredientFlags: IngredientFlag[0..n]
+  textFormatter: String
+  availableVariants: VariantNode[1..n]
+  selectedVariants: VariantNode[0..n]
+  defaultVariants: VariantNode[1..n]
+  description: String
+  // mint, cardamom...etc.
+  productFlags: ProductFlagNode[0..n]
   specialInstructions: String?
   price: Float
   isAvailable: Boolean
+  productType: ProductType
+  blendType: BlendType
 }
 
-type ProductGroupNode : RootNode {
+@lang/dot color forestgreen
+enum BlendType {
+  DARK MEDIUM LIGHT ICED DECAF TEA
+}
+
+@lang/dot color forestgreen
+enum ProductType {
+  COFFEE TEA
+}
+
+@lang/dot color forestgreen
+type VariantSizeNode : RootNode {
+  type: SizeType
+}
+
+@lang/dot color forestgreen
+type VariantCreamNode : RootNode {
+  amount: CreamAmount
+  type: CreamType
+}
+
+@lang/dot color forestgreen
+type VariantSweetenerNode : RootNode {
+  amount: SweetenerAmount
+  type: SweetenerType
+}
+
+@lang/dot color forestgreen
+type CarouselRecommendationNode : RootNode {
+  title: String
+  description: String
+  product: ProductNode
+  estimates(limit: Integer?): String[0..n] {
+    @doc "given a number of items, you get a collection of times in string RFC3339 format, of estimates that a user can pick their order."
+    @lang/lacinia resolver resolve-estimates
+  }
+}
+
+@lang/dot color forestgreen
+type CarouselFavoriteNode : RootNode {
+  title: String
+  description: String
   products: ProductNode[1..n]
-  callToAction: String
-  soonestAvailableTimeFrame: TimeFrame?
-  availableSchedules: ScheduleEntry[0..n]?
+  estimates(limit: Integer?): String[0..n] {
+    @doc "given a number of items, you get a collection of times in string RFC3339 format, of estimates that a user can pick their order."
+    @lang/lacinia resolver resolve-estimates
+  }
 }
 
-type AvailableVariant {
-  textPrefix: String
-  textSuffix: String
-  variantQuantifiers: VariantQuantifier[0..n]
-  variantType: KeyValuePair
-  variantValues: KeyValuePair[1..n]
+@lang/dot color gold
+type CarouselOrderNode : RootNode {
+  title: String
+  description: String
+  products: ProductNode[1..n]
+  orderStatus: OrderStatus
+  baristaImageUrl: String
+  store: StoreNode
+  orderPickUpTime: String // RFC3339 format.
 }
 
-type VariantQuantifier {
-  relativeQty: Integer
-  text: String
+@lang/dot color gold
+enum OrderStatus {
+  UNASSIGNED ASSIGNED READY CANCELLED
 }
 
-type VariantSelection {
-  variantType: KeyValuePair
-  variantValue: KeyValuePair
-  variantQuantifier: VariantQuantifier?
-}
-
-type IngredientFlag {
-  imageSrc: String
-  text: String
-}
-
-type KeyValuePair {
-  key: String
-  value: String
+@lang/dot color forestgreen
+type ProductFlagNode : RootNode {
+  iconUrl: String
+  name: String
 }
 
 // Feedbacks
@@ -125,7 +201,6 @@ enum RateType {
 }
 
 type RateNode : RootNode {
-  id: ID
   order: OrderNode?
   rateType: RateType
 }
@@ -133,7 +208,6 @@ type RateNode : RootNode {
 type Feedback {
   comments: String
 }
-
 
 // Order types
 
@@ -151,18 +225,9 @@ type OrderNode : RootNode {
   totalTax: Float
 }
 
-type TimeFrame {
-  dateTime: String
-  offsetInMins: Integer
-}
-
-type ScheduleEntry {
-  timeFrame: TimeFrame
-  available: Boolean
-}
-
 // Putting it all together
 
+@lang/dot color gold
 @lang/lacinia identifier query
 type QueryRoot {
   viewer: ViewerNode? {
@@ -174,11 +239,13 @@ type QueryRoot {
 }
 
 @lang/lacinia identifier mutation
-type MutationBla {
-  rateOrder(orderID: ID, rate: RateType): RateNode
-  feedback(rateID: ID?, comments: String): Feedback
+type MutationRoot {
+  rateOrder(orderId: ID, rate: RateType): RateNode
+  feedback(rateId: ID?, comments: String): Feedback
 }
 
-diagram philz {
-  (QueryRoot)!
+diagram Products {
+  (ProductNode CarouselRecommendationNode CarouselFavoriteNode CarouselOrderNode)!
+  (VariantSizeNode VariantCreamNode VariantSweetenerNode)!
+  (QueryRoot ViewerNode RootNode)
 }

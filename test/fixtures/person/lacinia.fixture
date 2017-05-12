@@ -44,10 +44,14 @@
    :description "I can also add documentaiton here",
    :isDeprecated false},
   :description "This is a comment above a mutation"},
+ :unions
+ {:UnionType
+  {:members [:Person :Profession],
+   :description "This is an union type"}},
  :queries
- {:getFriends
+ {:unionQuery {:type (non-null :UnionType), :isDeprecated false},
+  :getFriends
   {:type (non-null (list (non-null :Person))),
    :description "This is a documentation inside a query field",
    :isDeprecated false},
-  :description "An employee inherits from Person"},
- :unions {:Result {:members [:Person :Profession]}}}
+  :description "An employee inherits from Person"}}
