@@ -8,23 +8,39 @@ A Clojure tool that receives a umlaut schema and outputs code.
 
 Let's go over `umlaut`'s syntax and characteristics.
 
+## Usage
+
+You can interact with this tool in two ways:
+- adding the `lein-plugin` as a plugin to your project and using as a CLI;
+- adding umlaut as a library dependency and call its functions directly;
+
+In order to umlaut with the CLI, please visit its project page for further instructions: https://github.com/workco/lein-umlaut
+
+In order to use it as library, every generator implements a `gen` methods. Dig into the source code of inside the `umlaut/src/generators` folder for more details
+
 ## General
 
 The primitive types are: `["String" "Float" "Integer" "Boolean" "DateTime", "ID"]`. If an attribute has a type that is not primitive, it must be properly declared.
 
 By default, all declared fields are *non-null*. Nullable fields must have the symbol `?` after the attribute type.
 
-Umlaut receives a list of files as input. It will open all files with extension `umlaut` and load the schema into memory. One declaration can use the types defined in any other `umlaut` file. No need for includes!
-
-Identifiers are valid if they are valid in this regex: `[_A-Za-z][_0-9A-Za-z]*`.
-
-Comments are indicated by `//`.
+Identifiers are validated but this regex: `[_A-Za-z][_0-9A-Za-z]*` and they can not be present on chapter "List of reserved words" of this document.
 
 ### Attributes and methods
 Inside of types and interfaces, you can declare fields.
 
 #### Field
-Field represents two concepts on object oriented languages: attributes and methods. To represent a method, declare a filed with parameters. To represent an attribute, declare a method that doesn't parameters. All fields must have a type (primitive or not), and are declared like this: `identifier: type`. You can add arity after the type to indicate a collection of items of that same type, like this: `identifier: type[min..max]`. Examples:
+Umlaut calls `field` either a method or an attribute:
+
+To represent a method, declare a filed with parameters, like this:
+`identifier(identifier: type, ..., identifier: type): type`
+
+A field without parameters (attribute), is declared like this:
+`identifier: type`
+
+All fields must have a type (primitive or not). You can add arity after the type to indicate a collection of items of that same type, like this: `identifier: type[min..max]` or `identifier(...): type[min..max]`. You can use the optional modifier `?` after any one of the types to indicate a nullable field.
+
+A few more examples:
 ```
   firstName: String
   middleName: String?
@@ -34,20 +50,13 @@ Field represents two concepts on object oriented languages: attributes and metho
   }
   age: Float
   friends: String[0..n]
-```
-
-We call methods attributes that can receive parameters, perform some computation and return an arbitrary type. The have the following form: `identifier(identifier: type, ..., identifier: type): type`.
-
-There is no limit in the number of parameters a method can receive. You can use the optional modifier `?` after any one of the types to indicate optionality. The return type of the method must always be specified. Examples:
-```
-  getFirstName(): String
   setFirstName(name: String): String
   computeAge(dateOfBirth: DateTime, today: DateTime): Integer
 ```
 
-Note that `field(): type` is exactly the same of `field: type`.
-
 ### type
+
+You can define new types by using the `type` reserved word.
 ```
 type Person {
   id: ID
@@ -61,9 +70,7 @@ type Person {
 - `friends` is an example of a collection.
 - `email` is a nullable attribute.
 - All attributes are primitives in this example.
-- A type can inherit fields from an interface, but it can't from another type. Multiple inheritance is allowed.
 - The list of reserved words should be observed before naming a type.
-
 
 ### interface
 You can also declare an `interface`, usually to create composition of models.
@@ -87,6 +94,8 @@ type Employee : Person Human {
 
 - `umlaut` supports single/multiple inheritance, in this example `Employee` inherits from `Person` and `Human`. So `Employee` will have all the fields of its parent types, plus its own.
 - An interface cannot inherit fields from other interfaces.
+- A type can only inherit fields from an interface.
+- Inheriting for multiple interfaces (multiple inheritance) is allowed.
 - The list of reserved words should be observed before naming an interface.
 
 ### enum
@@ -104,11 +113,13 @@ type Person {
 }
 ```
 
+- Enums can also be used to create GraphQL unions, in order to do that, you need to add an annotation:
+`@lang/lacinia identifier union` above the enum definition. In that case, the contents of the enum need to be other custom types.
 - The list of reserved words should be observed before naming an enum.
 
 ### Annotations
-Annotations above the type declaration are used by a some code generators.
-Annotations have one of these two forms: `@<space> key [value]` or `@<space> [value]`. The second format is used only for documentation purposes.
+Annotations above a declaration are used by the code generators.
+Annotations have one of these two forms: `@<space> <key> [value]` or `@<space> [value]`. The second format is used only for documentation purposes.
 In this notation `[value]` is represented between brackets, since you can add more than on value to it. However, this should only be done after understanding a given generator requirement.
 ```
 @lang/lacinia identifier query
@@ -138,6 +149,14 @@ type New {
 See Lacinia documentation for more information.
 
 # Generators
+
+## Spec
+
+Umlaut can generate spec code based on the schema. This is a more complex generator that expects several parameters.
+Please read the `lein-umlaut` plugin help for the proper usage.
+
+- You can have a `@lang/spec validator <name>` above a type to add a custom validator function for that type. This custom validator function needs to be implemented in a common validator file.
+- Interfaces do not generate spec code, they are replaced by `s/or` of the types that implement that interface.
 
 ## Diagram
 

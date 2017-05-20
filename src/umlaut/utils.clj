@@ -91,10 +91,12 @@
 
 (defn save-map-to-file [filepath content]
   "Receives a file name and a map, prints the map into a string and saves the string in filepath"
+  (clojure.pprint/pprint (str "Saved " filepath))
   (spit filepath (with-out-str (pprint content))))
 
 (defn save-string-to-file [filepath content]
   "Receives a file name and a string, saves the string in filepath"
+  (clojure.pprint/pprint (str "Saved " filepath))
   (spit filepath content))
 
 (defn save-dotstring-to-image [filepath content]
@@ -124,3 +126,6 @@
 
 (defn resolve-inheritance [umlaut]
   (assoc umlaut :nodes (resolve-nodes-inheritance umlaut)))
+
+(defn union? [node]
+  (> (count (annotations-by-key-value "identifier" "union" (node :annotations))) 0))

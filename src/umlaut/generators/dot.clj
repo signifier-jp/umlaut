@@ -16,9 +16,6 @@
 ;; Store all edges added in a subgraph, so we don't have redundant edges
 (def ^:private edges (atom []))
 
-(defn- union? [node]
-  (> (count (annotations-by-key-value "identifier" "union" (node :annotations))) 0))
-
 (defn- arity-label
   "Builds the arity representation string in the diagram"
   [[from to]]

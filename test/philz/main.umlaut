@@ -1,6 +1,6 @@
 // Foundational types
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 interface RootNode {
   id: ID {
     @doc "Relay-specific opaque ID of this entity. It must always return the same entity as represented by the server at that request time."
@@ -19,7 +19,34 @@ type Version {
   }
 }
 
-@lang/dot color gold
+@lang/dot color lightgoldenrod1
+@doc "Defines the type of the image that can be fetched."
+enum ImageType {
+  PNG SVG
+}
+
+@lang/dot color lightgoldenrod1
+@doc "Speficifies the size of the image that can be fetched. The standard follows the Human Interface Guidelines from Apple"
+enum ImageSizeType {
+  SIZE_3X SIZE_2X SIZE_1X
+}
+
+@lang/dot color lightgoldenrod1
+@doc "Represent a combination of image type, size, and URL to fetch the particular image asset."
+type Image {
+  type: ImageType {
+    @doc "The type of the image."
+  }
+  sizeType: ImageSizeType {
+    @doc "The size of the image."
+  }
+  url: String {
+    @doc "The URL where the image can be fetched from."
+  }
+}
+
+@lang/dot color lightgoldenrod1
+@doc "Top level node for any parent types that render on the screen."
 type ViewerNode : RootNode {
   carouselItems(storeId: ID?): CarouselItemNode[1..n] {
     @lang/lacinia resolver resolve-carousel-items
@@ -47,11 +74,14 @@ type LocationSearchInput {
 
 // Store types
 
-@lang/dot color crimson
+@lang/dot color indianred1
+@doc "Represents a store object, prop-types subject to change.."
 type StoreNode : RootNode {
   name: String
   address: String
-  city: String
+  city: String {
+    @lang/lacinia resolver resolve-city
+  }
   phone: String
   monFriHours: String
   satSunHours: String
@@ -69,41 +99,42 @@ type CityNode : RootNode {
 
 @lang/lacinia identifier union
 @lang/graphql identifier union
-@lang/dot color forestgreen
-@lang/spec validator validate-variant-node
+@lang/dot color olivedrab1
 enum VariantNode {
   VariantSizeNode VariantCreamNode VariantSweetenerNode
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 enum CreamAmount {
   EXTRA MEDIUM LIGHT NONE
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 enum SweetenerAmount {
   EXTRA MEDIUM LIGHT NONE
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 enum SizeType {
   LARGE SMALL
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 enum SweetenerType {
   SUGAR HONEY SPLENDA STEVIA SWEETNLOW EQUAL
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 enum CreamType {
   CREAM WHOLE TWO_PERCENT LOW_FAT NON_FAT ALMOND SOY VANILLA_SOY
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
+@doc "Represents one product in the Menu, or one of many underlying products in a carousel item."
+@lang/spec validator validate-product
 type ProductNode : RootNode {
   name: String
-  imageUrl: String
+  image: Image[1..n]
   backgroundColor: String
   foregroundColor: String
   textFormatter: String
@@ -120,74 +151,76 @@ type ProductNode : RootNode {
   blendType: BlendType
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 @lang/spec validator validate-blend-type
 enum BlendType {
   DARK MEDIUM LIGHT ICED DECAF TEA
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 enum ProductType {
   COFFEE TEA
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 type VariantSizeNode : RootNode {
   type: SizeType
   additionalPrice: Float
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 type VariantCreamNode : RootNode {
   amount: CreamAmount
   type: CreamType
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 type VariantSweetenerNode : RootNode {
   amount: SweetenerAmount
   type: SweetenerType
 }
 
+@doc "Represents a carousel item on the home screen. Note that a carousel items are not identical in data shape because they can be an order, or a favorite item."
+@lang/dot color olivedrab1
 interface CarouselItemNode {
   title: String
   description: String
   products: ProductNode[1..n]
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
+@doc "A Carousel Recommendation, is an API-recomennded product. When the user downloads the app for the first time, all carousel items will be of this type because the user has not made any orders and does not have any favorites."
 type CarouselRecommendationNode : RootNode CarouselItemNode {
   estimates(limit: Integer?): String[0..n] {
     @doc "given a number of items, you get a collection of times in string RFC3339 format, of estimates that a user can pick their order."
   }
 }
 
-@lang/dot color forestgreen
-@lang/spec validator validate-carousel-favorite-node
+@lang/dot color olivedrab1
+@doc "This node can be thought of a previously ordered bundle"
 type CarouselFavoriteNode : RootNode CarouselItemNode {
-  abc: Boolean
   estimates(limit: Integer?): String[0..n] {
     @doc "given a number of items, you get a collection of times in string RFC3339 format, of estimates that a user can pick their order."
-    @lang/spec validator validate-estimates
   }
 }
 
-@lang/dot color gold
+@lang/dot color lightgoldenrod1
+@doc "This node represents an active order"
 type CarouselOrderNode : RootNode CarouselItemNode {
   orderStatus: OrderStatus
-  baristaImageUrl: String
+  baristaImage: Image[1..n]
   store: StoreNode
   orderPickUpTime: String // RFC3339 format.
 }
 
-@lang/dot color gold
+@lang/dot color lightgoldenrod1
 enum OrderStatus {
   UNASSIGNED ASSIGNED READY CANCELLED
 }
 
-@lang/dot color forestgreen
+@lang/dot color olivedrab1
 type ProductFlagNode : RootNode {
-  iconUrl: String
+  icon: Image[1..n]
   name: String
 }
 
@@ -224,7 +257,7 @@ type OrderNode : RootNode {
 
 // Putting it all together
 
-@lang/dot color gold
+@lang/dot color lightgoldenrod1
 @lang/lacinia identifier query
 type QueryRoot {
   viewer: ViewerNode? {
@@ -242,6 +275,6 @@ type MutationRoot {
 }
 
 diagram Products {
-  (QueryRoot ViewerNode RootNode LocationSearchInput)
+  (QueryRoot ViewerNode RootNode)
   (ProductNode CarouselItemNode CarouselRecommendationNode CarouselFavoriteNode CarouselOrderNode)!
 }
