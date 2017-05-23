@@ -21,7 +21,9 @@ type Version {
 
 @lang/dot color gold
 type ViewerNode : RootNode {
-  carouselItems(storeId: ID?): CarouselItemNode[1..n]
+  carouselItems(storeId: ID?): CarouselItemNode[1..n] {
+    @lang/lacinia resolver resolve-carousel-items
+  }
   stores(locationSearch: LocationSearchInput?): StoreNode[0..n] {
     @lang/lacinia resolver resolve-stores
   }
@@ -29,7 +31,9 @@ type ViewerNode : RootNode {
   cities: CityNode[0..n] {
     @lang/lacinia resolver resolve-cities
   }
-  productsCatalog(storeId: ID?): ProductNode[0..n]
+  productsCatalog(storeId: ID?): ProductNode[0..n] {
+    @lang/lacinia resolver resolve-products-catalog
+  }
 }
 
 // Location types
@@ -47,9 +51,7 @@ type LocationSearchInput {
 type StoreNode : RootNode {
   name: String
   address: String
-  city: String {
-    @lang/lacinia resolver resolve-city
-  }
+  city: String
   phone: String
   monFriHours: String
   satSunHours: String
@@ -68,14 +70,9 @@ type CityNode : RootNode {
 @lang/lacinia identifier union
 @lang/graphql identifier union
 @lang/dot color forestgreen
+@lang/spec validator validate-variant-node
 enum VariantNode {
   VariantSizeNode VariantCreamNode VariantSweetenerNode
-}
-
-@lang/lacinia identifier union
-@lang/graphql identifier union
-enum CarouselItemNode {
-  CarouselRecommendationNode CarouselFavoriteNode CarouselOrderNode
 }
 
 @lang/dot color forestgreen
@@ -124,6 +121,7 @@ type ProductNode : RootNode {
 }
 
 @lang/dot color forestgreen
+@lang/spec validator validate-blend-type
 enum BlendType {
   DARK MEDIUM LIGHT ICED DECAF TEA
 }
@@ -136,6 +134,7 @@ enum ProductType {
 @lang/dot color forestgreen
 type VariantSizeNode : RootNode {
   type: SizeType
+  additionalPrice: Float
 }
 
 @lang/dot color forestgreen
@@ -150,33 +149,31 @@ type VariantSweetenerNode : RootNode {
   type: SweetenerType
 }
 
-@lang/dot color forestgreen
-type CarouselRecommendationNode : RootNode {
+interface CarouselItemNode {
   title: String
   description: String
-  product: ProductNode
+  products: ProductNode[1..n]
+}
+
+@lang/dot color forestgreen
+type CarouselRecommendationNode : RootNode CarouselItemNode {
   estimates(limit: Integer?): String[0..n] {
     @doc "given a number of items, you get a collection of times in string RFC3339 format, of estimates that a user can pick their order."
-    @lang/lacinia resolver resolve-estimates
   }
 }
 
 @lang/dot color forestgreen
-type CarouselFavoriteNode : RootNode {
-  title: String
-  description: String
-  products: ProductNode[1..n]
+@lang/spec validator validate-carousel-favorite-node
+type CarouselFavoriteNode : RootNode CarouselItemNode {
+  abc: Boolean
   estimates(limit: Integer?): String[0..n] {
     @doc "given a number of items, you get a collection of times in string RFC3339 format, of estimates that a user can pick their order."
-    @lang/lacinia resolver resolve-estimates
+    @lang/spec validator validate-estimates
   }
 }
 
 @lang/dot color gold
-type CarouselOrderNode : RootNode {
-  title: String
-  description: String
-  products: ProductNode[1..n]
+type CarouselOrderNode : RootNode CarouselItemNode {
   orderStatus: OrderStatus
   baristaImageUrl: String
   store: StoreNode
@@ -245,7 +242,6 @@ type MutationRoot {
 }
 
 diagram Products {
-  (ProductNode CarouselRecommendationNode CarouselFavoriteNode CarouselOrderNode)!
-  (VariantSizeNode VariantCreamNode VariantSweetenerNode)!
-  (QueryRoot ViewerNode RootNode)
+  (QueryRoot ViewerNode RootNode LocationSearchInput)
+  (ProductNode CarouselItemNode CarouselRecommendationNode CarouselFavoriteNode CarouselOrderNode)!
 }

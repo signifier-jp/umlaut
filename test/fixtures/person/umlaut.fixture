@@ -51,7 +51,7 @@
       :field-annotations
       {:documentation "Changes the salary of an employee"}}
      {:id "friends",
-      :return {:type-id "String", :arity [0 "n"], :required true},
+      :return {:type-id "String", :arity [0 4], :required true},
       :params [],
       :params? false,
       :field-annotations {}}

@@ -17,7 +17,7 @@ type Employee : Person {
   {
     @doc "Changes the salary of an employee"
   }
-  friends: String[0..n]
+  friends: String[0..4]
   address: String
   {
       @lang/lacinia resolver resolve-name
