@@ -19,7 +19,7 @@
 (defn- arity-label
   "Builds the arity representation string in the diagram"
   [[from to]]
-  (if (= from to) "" (str "[" from ".." to "]")))
+  (if (= from to) (if (= from 1) "" (str "[" from "]")) (str "[" from ".." to "]")))
 
 (defn- required-label [type-obj]
   "Checks required attribute and returns ? or not"

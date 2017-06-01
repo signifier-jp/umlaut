@@ -28,7 +28,7 @@
 
 (defn- check-arity [[from to]]
   "Returns a boolean indicating if we should represent arity in the graphql"
-  (= from to))
+  (and (= from 1) (= from to)))
 
 (defn- gen-type-with-arity [type-obj]
   "Builds the field type properly considering arity"
