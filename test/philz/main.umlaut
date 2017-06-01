@@ -1,5 +1,3 @@
-// Foundational types
-
 @lang/dot color olivedrab1
 interface RootNode {
   id: ID {
@@ -7,6 +5,7 @@ interface RootNode {
   }
 }
 
+@lang/dot color olivedrab1
 type Version {
   systemId: String {
     @doc "The ID of the system this version refers to"
@@ -17,21 +16,24 @@ type Version {
   semver: String {
     @doc "The semver version of the system"
   }
+  queue: String {
+    @doc "The version of the queue service"
+  }
 }
 
-@lang/dot color lightgoldenrod1
+@lang/dot color olivedrab1
 @doc "Defines the type of the image that can be fetched."
 enum ImageType {
   PNG SVG
 }
 
-@lang/dot color lightgoldenrod1
+@lang/dot color olivedrab1
 @doc "Speficifies the size of the image that can be fetched. The standard follows the Human Interface Guidelines from Apple"
 enum ImageSizeType {
   SIZE_3X SIZE_2X SIZE_1X
 }
 
-@lang/dot color lightgoldenrod1
+@lang/dot color olivedrab1
 @doc "Represent a combination of image type, size, and URL to fetch the particular image asset."
 type Image {
   type: ImageType {
@@ -42,29 +44,17 @@ type Image {
   }
   url: String {
     @doc "The URL where the image can be fetched from."
+    @lang/spec validator validate-url
   }
+}
+
+@lang/dot color olivedrab1
+@doc "Top level node for any information that is customer dependent."
+type CustomerNode : RootNode {
+  carouselItems: CarouselItemNode[1..n]
 }
 
 @lang/dot color lightgoldenrod1
-@doc "Top level node for any parent types that render on the screen."
-type ViewerNode : RootNode {
-  carouselItems(storeId: ID?): CarouselItemNode[1..n] {
-    @lang/lacinia resolver resolve-carousel-items
-  }
-  stores(locationSearch: LocationSearchInput?): StoreNode[0..n] {
-    @lang/lacinia resolver resolve-stores
-  }
-  versions: Version[0..n]
-  cities: CityNode[0..n] {
-    @lang/lacinia resolver resolve-cities
-  }
-  productsCatalog(storeId: ID?): ProductNode[0..n] {
-    @lang/lacinia resolver resolve-products-catalog
-  }
-}
-
-// Location types
-
 @lang/lacinia identifier input
 type LocationSearchInput {
   latitude: Float
@@ -72,29 +62,40 @@ type LocationSearchInput {
   radius: Float
 }
 
-// Store types
-
-@lang/dot color indianred1
+@lang/dot color lightgoldenrod1
 @doc "Represents a store object, prop-types subject to change.."
 type StoreNode : RootNode {
   name: String
   address: String
-  city: String {
-    @lang/lacinia resolver resolve-city
-  }
+  city: String
   phone: String
-  monFriHours: String
-  satSunHours: String
+  openingHours: StoreHours[7..7]
   latitude: Float
   longitude: Float
+  image: Image
   distance: Float?
 }
 
+enum DayOfWeek {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+type StoreHours {
+  dayOfWeek: DayOfWeek
+  isOpen: Boolean
+  hours: String
+}
+
+@lang/dot color olivedrab1
 type CityNode : RootNode {
   name: String
-  stores: StoreNode[0..n] {
-    @lang/lacinia resolver resolve-stores
-  }
+  stores: StoreNode[0..n]
 }
 
 @lang/lacinia identifier union
@@ -135,8 +136,12 @@ enum CreamType {
 type ProductNode : RootNode {
   name: String
   image: Image[1..n]
-  backgroundColor: String
-  foregroundColor: String
+  backgroundColor: String {
+    @lang/spec validator validate-color
+  }
+  foregroundColor: String {
+    @lang/spec validator validate-color
+  }
   textFormatter: String
   availableVariants: VariantNode[1..n]
   selectedVariants: VariantNode[0..n]
@@ -152,9 +157,8 @@ type ProductNode : RootNode {
 }
 
 @lang/dot color olivedrab1
-@lang/spec validator validate-blend-type
 enum BlendType {
-  DARK MEDIUM LIGHT ICED DECAF TEA
+  DARK MEDIUM LIGHT ICED DECAF TEA MORE
 }
 
 @lang/dot color olivedrab1
@@ -163,6 +167,7 @@ enum ProductType {
 }
 
 @lang/dot color olivedrab1
+@lang/spec validator validate-variant-size-node
 type VariantSizeNode : RootNode {
   type: SizeType
   additionalPrice: Float
@@ -184,27 +189,32 @@ type VariantSweetenerNode : RootNode {
 @lang/dot color olivedrab1
 interface CarouselItemNode {
   title: String
-  description: String
+  description: String?
   products: ProductNode[1..n]
 }
 
 @lang/dot color olivedrab1
 @doc "A Carousel Recommendation, is an API-recomennded product. When the user downloads the app for the first time, all carousel items will be of this type because the user has not made any orders and does not have any favorites."
 type CarouselRecommendationNode : RootNode CarouselItemNode {
-  estimates(limit: Integer?): String[0..n] {
+  isAvailable(storeId: ID?): Boolean
+  estimates(storeId: ID?, limit: Integer?): String[0..n] {
     @doc "given a number of items, you get a collection of times in string RFC3339 format, of estimates that a user can pick their order."
+    @lang/lacinia resolver resolve-estimates
+    @lang/spec validator validate-estimates
   }
 }
 
 @lang/dot color olivedrab1
 @doc "This node can be thought of a previously ordered bundle"
 type CarouselFavoriteNode : RootNode CarouselItemNode {
-  estimates(limit: Integer?): String[0..n] {
+  isAvailable(storeId: ID?): Boolean
+  estimates(storeId: ID?, limit: Integer?): String[0..n] {
     @doc "given a number of items, you get a collection of times in string RFC3339 format, of estimates that a user can pick their order."
+    @lang/lacinia resolver resolve-estimates
+    @lang/spec validator validate-estimates
   }
 }
 
-@lang/dot color lightgoldenrod1
 @doc "This node represents an active order"
 type CarouselOrderNode : RootNode CarouselItemNode {
   orderStatus: OrderStatus
@@ -213,7 +223,6 @@ type CarouselOrderNode : RootNode CarouselItemNode {
   orderPickUpTime: String // RFC3339 format.
 }
 
-@lang/dot color lightgoldenrod1
 enum OrderStatus {
   UNASSIGNED ASSIGNED READY CANCELLED
 }
@@ -223,8 +232,6 @@ type ProductFlagNode : RootNode {
   icon: Image[1..n]
   name: String
 }
-
-// Feedbacks
 
 enum RateType {
   HAPPY UNHAPPY
@@ -239,15 +246,6 @@ type Feedback {
   comments: String
 }
 
-// Order types
-
-type CartNode : RootNode {
-  products: ProductNode[1..n]
-  totalCount: Integer
-  totalPrice: Float
-  totalTax: Float
-}
-
 type OrderNode : RootNode {
   products: ProductNode[1..n]
   totalCount: Integer
@@ -255,26 +253,73 @@ type OrderNode : RootNode {
   totalTax: Float
 }
 
-// Putting it all together
-
 @lang/dot color lightgoldenrod1
 @lang/lacinia identifier query
 type QueryRoot {
-  viewer: ViewerNode? {
-    @lang/lacinia resolver resolve-viewer
+  versions: Version[0..n] {
+    @lang/lacinia resolver resolve-versions
   }
   node(id: ID): RootNode? {
     @lang/lacinia resolver resolve-node
   }
+  stores(locationSearch: LocationSearchInput?): StoreNode[0..n] {
+    @lang/lacinia resolver resolve-stores
+  }
+  cities: CityNode[0..n] {
+    @lang/lacinia resolver resolve-cities
+  }
+  productsCatalog(storeId: ID?): ProductNode[0..n] {
+    @lang/lacinia resolver resolve-products-catalog
+  }
+  customer: CustomerNode {
+    @lang/lacinia resolver resolve-customer
+  }
+}
+
+@lang/dot color indianred1
+type MockEnv {
+  spaceId: String
+  env: String
+  token: String
+}
+
+@lang/dot color indianred1
+@lang/lacinia identifier mutation
+type MockRoot {
+  mockEnv(spaceId: String, env: String, token:String): MockEnv {
+    @lang/lacinia resolver resolve-mock-env
+  }
+}
+
+type CartNode: RootNode {
+  products: ProductNode[0..n]
+  totalProducts: Float
+  totalTax: Float
+  totalPrice: Float
+}
+
+@lang/lacinia identifier input
+type CartItemInput {
+  productId: ID
+  variants: ID[0..n]
 }
 
 @lang/lacinia identifier mutation
 type MutationRoot {
+  updateCart(cartId: ID?, items: CartItemInput[0..n]): CartNode {
+    @doc "Passing items with an empty list will reset given cartId. If cartId is not provided, server will create one."
+    @lang/lacinia resolver resolve-cart-update
+  }
   rateOrder(orderId: ID, rate: RateType): RateNode
   feedback(rateId: ID?, comments: String): Feedback
 }
 
-diagram Products {
-  (QueryRoot ViewerNode RootNode)
+diagram products {
+  (QueryRoot CustomerNode RootNode LocationSearchInput)
   (ProductNode CarouselItemNode CarouselRecommendationNode CarouselFavoriteNode CarouselOrderNode)!
+}
+
+diagram locations {
+  (QueryRoot CustomerNode RootNode LocationSearchInput)
+  (StoreNode CityNode)!
 }
