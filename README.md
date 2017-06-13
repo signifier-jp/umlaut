@@ -194,6 +194,8 @@ You can specify the colors of a box like this:
 
 This annotation needs to be above the definition of a type/enum/interface. The available colors are defined here: http://www.graphviz.org/doc/info/colors.html
 
+To use this generator you must have [graphviz](http://www.graphviz.org/) installed; this package is available for Mac via [Homebrew](http://brewformulas.org/Graphviz) and Windows via [direct download](http://www.graphviz.org/Download_windows.php).
+
 ## Lacinia
 
 Lacinia is a graphQL library for schemas. It's an [EDN](https://github.com/edn-format/edn) file with all the types, queries, inputs, mutations, and enums.
