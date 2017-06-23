@@ -24,7 +24,7 @@
 
 (defn- contain-parents? [node]
   "Whether the type inherits from other types or not"
-  (and (contains? node :parents) (> (count (get node :parents)) 0)))
+  (and (contains? node :parents) (pos? (count (get node :parents)))))
 
 (defn- check-arity [[from to]]
   "Returns a boolean indicating if we should represent arity in the graphql"
@@ -57,14 +57,14 @@
 (defn- gen-field
   [field]
   (str
-    (gen-field-documentation field)
-    "  " (field :id) (gen-field-type field) "\n"))
+   (gen-field-documentation field)
+   "  " (field :id) (gen-field-type field) "\n"))
 
 (defn- gen-fields
   [fields]
   (reduce (fn [acc field]
             (str acc (gen-field field)))
-    "" fields))
+          "" fields))
 
 (defn- gen-enum-values
   [values]
@@ -79,7 +79,7 @@
 
 (defn- gen-identifier [kind-str node]
   (let [annotations (annotations-by-space-key "lang/graphql" "identifier" (node :annotations))]
-    (if (> (count annotations) 0)
+    (if (pos? (count annotations))
       (if (= (count annotations) 1)
         ((first annotations) :value)
         (do
@@ -95,20 +95,20 @@
 
 (defn- gen-entry-enum [body]
   (str
-    (gen-documentation body)
-    "enum " (:id body) " {\n"
-     (gen-enum-values (:values body))
-    "}\n\n"))
+   (gen-documentation body)
+   "enum " (:id body) " {\n"
+   (gen-enum-values (:values body))
+   "}\n\n"))
 
 (defn- gen-entry-others [kind-str body]
   (str
-    (gen-documentation body)
-    (gen-identifier-label kind-str body)
-    (when (contain-parents? body)
-      (str " implements " (string/join "," (map #(% :type-id) (body :parents)))))
-    " {\n"
-      (gen-fields (body :fields))
-    "}\n\n"))
+   (gen-documentation body)
+   (gen-identifier-label kind-str body)
+   (when (contain-parents? body)
+     (str " implements " (string/join "," (map #(% :type-id) (body :parents)))))
+   " {\n"
+   (gen-fields (body :fields))
+   "}\n\n"))
 
 (defn- gen-entry
   [[kind node]]
@@ -120,9 +120,9 @@
 
 (defn- gen-union-entry [[kind body]]
   (str
-    (gen-documentation body)
-    (str "union " (body :id) " = " (string/join " | " (body :values)))
-    "\n\n"))
+   (gen-documentation body)
+   (str "union " (body :id) " = " (string/join " | " (body :values)))
+   "\n\n"))
 
 (defn- filter-union-nodes [nodes]
   (filter (annotation-comprarer "lang/graphql" "identifier" "union") nodes))
@@ -140,12 +140,11 @@
   (let [umlaut (resolve-inheritance (umlaut.core/main files))
         nodes-seq (seq (umlaut :nodes))]
     (as-> nodes-seq coll
-      (reduce (fn [acc [key node]]
-                (str acc (gen-entry node)))
-              "" (filter-other-nodes coll))
-      (reduce (fn [acc [key node]]
-                (str acc (gen-union-entry node)))
-              coll (filter-union-nodes nodes-seq)))))
-
+          (reduce (fn [acc [key node]]
+                    (str acc (gen-entry node)))
+                  "" (filter-other-nodes coll))
+          (reduce (fn [acc [key node]]
+                    (str acc (gen-union-entry node)))
+                  coll (filter-union-nodes nodes-seq)))))
 
 ; (save-string-to-file "output/main.graphql" (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))

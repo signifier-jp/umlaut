@@ -1,18 +1,16 @@
 (ns umlaut.utils
-    (:require [clojure.string :as string]
-      [clojure.spec.gen :as gen]))
+  (:require [clojure.string :as string]
+            [clojure.spec.gen :as gen]))
 (use '[clojure.pprint :only [pprint]])
 (use '[clojure.java.shell :only [sh]])
 
 (def primitive-types ["String" "Float" "Integer" "Boolean" "DateTime", "ID"])
 
 (defn primitive? "Whether type is primitive or not" [type]
-      (> (count (filter #(=
-                          (string/lower-case %)
-                          (string/lower-case type)) primitive-types)) 0))
+  (pos? (count (filter (fn* [p1__19405#] (= (string/lower-case p1__19405#) (string/lower-case type))) primitive-types))))
 
 (defn not-primitive? "Whether type is not a primitive" [type]
-      (not (primitive? type)))
+  (not (primitive? type)))
 
 (defn diagram?
   "Whether an AST node is a diagram node or not"
@@ -46,7 +44,7 @@
                 (assoc acc key (map-extend (base key) (extension key)))
                 (assoc acc key value))
               (assoc acc key value)))
-    base (seq extension)))
+          base (seq extension)))
 
 (defn seek [func coll]
   "Returns the first occurrence when func is true in coll"
@@ -85,9 +83,7 @@
   "To be used as filter function of (seq (umlaut :nodes))"
   (fn [node]
     (let [annotations (annotations-by-space space ((last (last node)) :annotations))]
-      (> (->> annotations
-          (filter #(and (= value (% :value)) (= "identifier" (% :key))))
-          (count)) 0))))
+      (pos? (->> annotations (filter (fn* [p1__94482#] (and (= value (p1__94482# :value)) (= "identifier" (p1__94482# :key))))) (count))))))
 
 (defn save-map-to-file [filepath content]
   "Receives a file name and a map, prints the map into a string and saves the string in filepath"
@@ -114,7 +110,7 @@
 (defn- resolve-field-inheritance [node umlaut]
   (reduce (fn [acc parent]
             (concat acc ((get-parent-node parent umlaut) :fields)))
-    (node :fields) (node :parents)))
+          (node :fields) (node :parents)))
 
 (defn- resolve-node-inheritance [node umlaut]
   (assoc node :fields (resolve-field-inheritance node umlaut)))
@@ -122,10 +118,10 @@
 (defn- resolve-nodes-inheritance [umlaut]
   (reduce (fn [acc [id [kind obj]]]
             (assoc acc id [kind (resolve-node-inheritance obj umlaut)]))
-    {} (seq (umlaut :nodes))))
+          {} (seq (umlaut :nodes))))
 
 (defn resolve-inheritance [umlaut]
   (assoc umlaut :nodes (resolve-nodes-inheritance umlaut)))
 
 (defn union? [node]
-  (> (count (annotations-by-key-value "identifier" "union" (node :annotations))) 0))
+  (pos? (count (annotations-by-key-value "identifier" "union" (node :annotations)))))

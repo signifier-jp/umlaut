@@ -20,6 +20,7 @@ pom.xml.asc
 
 ### IDE
 .idea/
+.projectile
 
 ### Mercurial
 .hgignore

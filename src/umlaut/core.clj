@@ -12,11 +12,11 @@
 (defn- read-parse [path]
   "Read all the umlaut files from a folder and parse its content"
   (->> path
-      (list)
-      (flatten)
-      (reduce (fn [acc filename]
-                (let [parsed (parse (slurp filename))]
-                  (utils/map-extend acc {:nodes (parsed :nodes)
+       (list)
+       (flatten)
+       (reduce (fn [acc filename]
+                 (let [parsed (parse (slurp filename))]
+                   (utils/map-extend acc {:nodes (parsed :nodes)
                                           :diagrams (parsed :diagrams)}))) {})))
 
 (defn- read-folder [path]

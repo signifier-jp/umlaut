@@ -15,8 +15,8 @@
 (s/def ::type-id (s/and string? #(> (count %) 0)))
 (s/def ::arity (s/with-gen
                  (s/and
-                   (s/tuple positive? #(if (= "n" %) true (positive? %)))
-                   (fn [[from to]] (if (not= "n" to) (>= to from) true)))
+                  (s/tuple positive? #(if (= "n" %) true (positive? %)))
+                  (fn [[from to]] (if (not= "n" to) (>= to from) true)))
                  arity-generator))
 
 (defn- create-type-id [type-id def-name]
