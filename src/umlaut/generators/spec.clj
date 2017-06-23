@@ -13,7 +13,7 @@
     "String" 'string?
     "Float" 'float?
     "Integer" 'integer?
-    "Boolean" '#{true false}
+    "Boolean" '#(contains? #{true false} %)
     "DateTime" 'string?})
 
 (defn- build-qualified-keyword [type-obj field opts]
