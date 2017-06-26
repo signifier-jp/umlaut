@@ -9,7 +9,7 @@
                  [instaparse "1.4.7"]]
   :plugins [[lein-umlaut "0.1.0-SNAPSHOT"]
             [lein-cljfmt "0.5.6"]
-			[lein-kibit "0.1.5"]]
+ 			      [lein-kibit "0.1.5"]]
   :main umlaut.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}

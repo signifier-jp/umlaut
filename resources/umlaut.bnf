@@ -1,56 +1,58 @@
-<document> ::= statement*
+<document> ::= (<SPACE*> statement)+
 
-(* general language features*)
-spacer ::= ignore+
-ignored ::= ignore*
-ignore ::= unicode-BOM | white-space | new-line | comment
+(* tokens *)
 unicode-BOM ::= "\uFEFF"
-white-space ::= #"[\x{9}\x{20}]"
-block-start ::= <ignored> <"{">
-block-end ::= <ignored> <"}">
-group-start ::= <ignored> <"("> <ignored>
-group-end ::= <ignored> <")"> <ignored>
-new-line ::= #"\n"
+white-space ::= #"\s+"
+block-start ::= <"{">
+block-end ::=  <"}">
+group-start ::=  <"("> 
+group-end ::= <")"> 
 comment-char ::= "//"
 comment ::= comment-char comment-value
-<identifier> ::= #"[_A-Za-z][_0-9A-Za-z]*"
 <comment-value> ::= #".*\n"
+SPACE ::= unicode-BOM | white-space | comment
+
+(* general language features*)
+<identifier> ::= #"[_A-Za-z][_0-9A-Za-z]*"
 <value> ::= #"[\d\t\w <\(\[\{\\\^\-:\/,;'%$#@&#=\$!\|\]\}\?\*\+\.>]+"
 <word-value> ::= #"[\d\t\w<\\\^\-:,;'\"%$#@&#=\$!\|\?\*\+\.>]+"
 
 (* high-level section *)
-<statement> ::= <ignored> | type* | enum* | interface* | diagram*
+
+<statement> ::= type | enum | interface | diagram | <SPACE+>
 
 (* annotations *)
 <annotation-space> ::= identifier <"/"> identifier
-annotation ::= <"@"> annotation-space <spacer> identifier <spacer> word-value+ <",">? <spacer>?
-documentation-annotation ::= <"@"> identifier <spacer> <"\""> value+ <"\""> <spacer>? <",">?
-field-annotations ::= <"{"> <ignored> (annotation|documentation-annotation)+ <ignored> <"}">
+annotation ::= <"@"> annotation-space <SPACE+> identifier <SPACE+> word-value+ <",">? <SPACE+>?
+documentation-annotation ::= <"@"> identifier <SPACE+> <"\""> value+ <"\""> <SPACE+>? <",">?
+<annotation-block> ::= (annotation | documentation-annotation)
+field-annotations ::= <"{"> <SPACE*> annotation-block+ <SPACE*> <"}">
+<attribute-block> ::= <block-start> <SPACE*> annotation-block* <SPACE*> method+ <SPACE*> <block-end>
+
+(* interface statement *)
+interface ::= <"interface"> <SPACE+> identifier <SPACE*> attribute-block
 
 (* class statement *)
-type ::= (annotation|documentation-annotation)* <"type"> <spacer> identifier parent-set? attribute-block
-<attribute-block> ::= <block-start> <ignored> method+ <ignored> <block-end>
-attribute ::= <ignored> identifier <ignored> <":"> <ignored> kind optional? <",">?
-method ::= identifier <ignored> method-args? <ignored> <":"> <ignored> return-kind <ignored> field-annotations? <ignored>
-<method-args> ::= <group-start> attribute* <group-end>
+type ::= <"type"> <SPACE+> identifier parent-set? <SPACE*> attribute-block
+
+attribute ::= <SPACE*> identifier <SPACE*> <":"> <SPACE*> kind optional? <",">?
+method ::= identifier <SPACE*> method-args? <SPACE*> <":"> <SPACE*> return-kind <SPACE*> field-annotations? <SPACE*>
+<method-args> ::= <group-start> <SPACE*> attribute* <SPACE*> <group-end>
 arity-value ::= #"[0-9]+" | "n"
 <arity> ::= <"["> arity-value (<".."> arity-value) <"]">
 optional ::= <"?">
 return-kind ::= kind optional?
 kind ::= identifier arity?
-<parent-set> ::= <ignored> <":"> <ignored> parent*
-parent ::= <ignored> identifier
-
-(* interface statement *)
-interface ::= (annotation|documentation-annotation)* <"interface"> <spacer> identifier attribute-block
+<parent-set> ::= <SPACE*> <":"> <SPACE*> parent*
+parent ::= <SPACE*> identifier
 
 (* enum statement *)
-enum ::= (annotation|documentation-annotation)* <"enum"> <spacer> identifier enum-block
-<enum-block> ::= <block-start> enum-entry+ <block-end>
-<enum-entry> ::= <ignored> identifier
+enum ::= <"enum"> <SPACE+> identifier <SPACE*> enum-block
+<enum-block> ::= <block-start> <SPACE*> annotation-block* enum-entry+ <SPACE*> <block-end>
+<enum-entry> ::= <SPACE+> identifier
 
 (* diagram statement *)
-diagram ::= <"diagram"> <spacer> identifier diagram-block
-<diagram-block> ::= <block-start> diagram-group+ <block-end>
-diagram-group ::= <group-start> diagram-entry+ <group-end>"!"?
-<diagram-entry> ::= <ignored> identifier
+diagram ::= <"diagram"> <SPACE+> identifier <SPACE*> diagram-block
+<diagram-block> ::= <block-start> <SPACE*> diagram-group+ <SPACE*> <block-end>
+diagram-group ::= <group-start> <SPACE*> diagram-entry+ <SPACE*> <group-end>"!"?
+<diagram-entry> ::= <SPACE*> identifier
