@@ -7,7 +7,7 @@
 
 (def parser
   (insta/parser
-    (io/resource "umlaut.bnf")))
+   (io/resource "umlaut.bnf")))
 
 (defn- normalize-arity
   "Formats :arity according to the number of args"
@@ -24,9 +24,8 @@
   (let [all (conj args id)
         realId (first (filter string? all))
         values (filter #(and (string? %) (not= realId %)) all)
-        annotations (filter #(not (string? %)) all)]
-    [:enum {
-            :id realId
+        annotations (remove string? all)]
+    [:enum {:id realId
             :values values
             :annotations (vec (map second annotations))}]))
 
@@ -36,15 +35,15 @@
 
 (defn- required? [args]
   "Retruns a boolean whether the attribute/param is required or not"
-  (not (= (first (last args)) :optional)))
+  (not= (first (last args)) :optional))
 
 (defn- to-attribute
   "Transforms AST :attribute to attribute map"
   [id & args]
   (assoc (first args)
-    :id id
-    :relationship-type :attribute
-    :required (required? args)))
+         :id id
+         :relationship-type :attribute
+         :required (required? args)))
 
 (defn- to-method-params [params]
   (vec params))
@@ -57,25 +56,25 @@
 (defn- process-annotations [args]
   (let [field (utils/seek #(= (first %) :field-annotations) args)]
     (reduce
-      (fn [acc el]
-        (when (= (first el) :annotation)
-          (let [obj (second el)]
-            (case (obj :space)
-              :documentation (assoc acc :documentation (obj :value))
-              :deprecation (assoc acc :deprecation (obj :value))
-              (merge acc {:others (conj (or (acc :others) []) (second el))})))))
-      {} (rest field))))
+     (fn [acc el]
+       (when (= (first el) :annotation)
+         (let [obj (second el)]
+           (case (obj :space)
+             :documentation (assoc acc :documentation (obj :value))
+             :deprecation (assoc acc :deprecation (obj :value))
+             (merge acc {:others (conj (or (acc :others) []) (second el))})))))
+     {} (rest field))))
 
 (defn- to-method
   "Transforms AST :method into method map"
   [id & args]
   (assoc {}
-    :id id
-    :return (to-return (first (filter #(= (first %) :return-kind) args)))
-    :params (to-method-params (filter map? args))
-    :params? (> (count (to-method-params (filter map? args))) 0)
-    :field-annotations (process-annotations args)
-    :relationship-type :method))
+         :id id
+         :return (to-return (first (filter #(= (first %) :return-kind) args)))
+         :params (to-method-params (filter map? args))
+         :params? (pos? (count (to-method-params (filter map? args))))
+         :field-annotations (process-annotations args)
+         :relationship-type :method))
 
 (defn- to-parent
   "Creates a parent map"
@@ -84,10 +83,10 @@
 (defn- filter-relationship-type
   [relationship-id coll]
   (vec (map
-         #(dissoc % :relationship-type)
-         (filter
-           #(= relationship-id (:relationship-type %))
-           coll))))
+        #(dissoc % :relationship-type)
+        (filter
+         #(= relationship-id (:relationship-type %))
+         coll))))
 
 (defn- filter-annotations
   [coll]
@@ -95,14 +94,14 @@
 
 (defn- abstract-to-type
   [type] (fn
-            [id & args]
-            (let [all (conj args id)
-                  id (first (filter string? all))
-                  args (filter #(not (string? %)) args)]
-              [type {:id id
-                      :fields (filter-relationship-type :method all)
-                      :parents (filter-relationship-type :parent all)
-                      :annotations (filter-annotations all)}])))
+           [id & args]
+           (let [all (conj args id)
+                 id (first (filter string? all))
+                 args (remove string? args)]
+             [type {:id id
+                    :fields (filter-relationship-type :method all)
+                    :parents (filter-relationship-type :parent all)
+                    :annotations (filter-annotations all)}])))
 
 (defn- to-diagram
   "Transforms AST :diagram to diagram map"
@@ -126,7 +125,6 @@
                 "deprecation" {:space :deprecation :key "" :value value})]
     [:annotation annon]))
 
-
 (defn- id-list [nodelist]
   "Given a list of nodes, return a list of all node ids"
   (map #(get (second %) :id) nodelist))
@@ -145,8 +143,8 @@
                                     :method to-method
                                     :diagram to-diagram
                                     :diagram-group to-diagram-group} ast)]
-      {:nodes (zipmap (id-list (filter utils/type-interface-or-enum? node-list)) (filter utils/type-interface-or-enum? node-list))
-       :diagrams (zipmap (id-list (filter utils/diagram? node-list)) (filter utils/diagram? node-list))}))
+    {:nodes (zipmap (id-list (filter utils/type-interface-or-enum? node-list)) (filter utils/type-interface-or-enum? node-list))
+     :diagrams (zipmap (id-list (filter utils/diagram? node-list)) (filter utils/diagram? node-list))}))
 
 (defn parse
   [content]
@@ -154,7 +152,6 @@
     (when (insta/get-failure parsed)
       (throw (Exception. (with-out-str (pprint (insta/get-failure parsed))))))
     (transformer parsed)))
-
 
 ; (pprint (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
 ; (core/main ["test/philz/main.umlaut"])

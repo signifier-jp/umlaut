@@ -62,7 +62,7 @@
 (defn- check-add-resolver [field out]
   (if (contains? (field :field-annotations) :others)
     (let [resolver (annotations-by-space-key space "resolver" ((field :field-annotations) :others))]
-      (if (> (count resolver) 0)
+      (if (pos? (count resolver))
         (merge out {:resolve (keyword ((first resolver) :value))})
         out))
     out))
@@ -70,17 +70,17 @@
 (defn- process-field [field]
   "Receives a method and add an entry in the fields map"
   (->> (process-variable (field :return))
-    (check-add-field-documentation field)
-    (check-add-field-deprecation field)
-    (check-add-params field)
-    (check-add-resolver field)))
+       (check-add-field-documentation field)
+       (check-add-field-deprecation field)
+       (check-add-params field)
+       (check-add-resolver field)))
 
 (defn- process-declaration [info]
   "Thread several reduces to build a map of types, args, and resolvers"
   (as-> info acc
-    (reduce (fn [acc method]
-              (merge acc {(keyword (method :id)) (process-field method)}))
-            {} (info :fields))))
+        (reduce (fn [acc method]
+                  (merge acc {(keyword (method :id)) (process-field method)}))
+                {} (info :fields))))
 
 (defn- attr-to-values [info]
   (vec (info :values)))
@@ -93,7 +93,6 @@
     (if docs
       (merge out {:description (:value docs)})
       out)))
-
 
 (defn- check-add-deprecation [node out]
   (let [deprecation (first (annotations-by-space :deprecation (node :annotations)))]
@@ -114,30 +113,29 @@
   (when (= (first node) :enum)
     (let [info (second node)]
       (->> {:values (attr-to-values info)}
-          (check-add-documentation info)
+           (check-add-documentation info)
           ; (check-add-deprecation info)
-          (assoc {} (keyword (info :id)))))))
+           (assoc {} (keyword (info :id)))))))
 
 (defn- gen-node-interface [node]
   (when (= (first node) :interface)
     (let [info (second node)]
       (->> {:fields (process-declaration info)}
-          (check-add-documentation info)
+           (check-add-documentation info)
           ; (check-add-deprecation info)
-          (assoc {} (keyword (info :id)))))))
+           (assoc {} (keyword (info :id)))))))
 
 (defn- gen-query-type [node]
   (let [info (second node)]
-    (->> (process-declaration info)
-      (check-add-documentation info))))
+    (check-add-documentation info (process-declaration info))))
       ; (check-add-deprecation info))))
 
 (defn- gen-union-type [node]
   (when (= (first node) :enum)
     (let [info (second node)]
       (->> {:members (vec (map keyword (info :values)))}
-        (check-add-documentation info)
-        (assoc {} (keyword (info :id)))))))
+           (check-add-documentation info)
+           (assoc {} (keyword (info :id)))))))
 
 (defn- filter-input-nodes [nodes]
   (filter (annotation-comprarer space "identifier" "input") nodes))
@@ -167,32 +165,28 @@
   (let [umlaut (resolve-inheritance (core/main files))
         nodes-seq (seq (umlaut :nodes))]
     (as-> nodes-seq coll
-      (reduce
-        (fn [acc [key node]]
-          (merge acc {:objects (or (merge (acc :objects) (gen-node-type node)) {})
-                      :enums (or (merge (acc :enums) (gen-node-enum node)) {})
-                      :interfaces (or (merge (acc :interfaces) (gen-node-interface node)) {})}))
-        {} (filter-other-nodes nodes-seq))
-      (reduce
-        (fn [acc [key node]]
-          (merge acc {
-                      :input-objects (or (merge (acc :input-objects) (gen-node-type node)) {})}))
-        coll (filter-input-nodes nodes-seq))
-      (reduce
-        (fn [acc [key node]]
-          (merge acc {
-                      :mutations (or (merge (acc :mutations) (gen-query-type node)) {})}))
-        coll (filter-mutation-nodes nodes-seq))
-      (reduce
-        (fn [acc [key node]]
-          (merge acc {
-                      :unions (or (merge (acc :unions) (gen-union-type node)) {})}))
-        coll (filter-union-nodes nodes-seq))
-      (reduce
-        (fn [acc [key node]]
-          (merge acc {
-                      :queries (or (merge (acc :queries) (gen-query-type node)) {})}))
-        coll (filter-query-nodes nodes-seq)))))
+          (reduce
+           (fn [acc [key node]]
+             (merge acc {:objects (or (merge (acc :objects) (gen-node-type node)) {})
+                         :enums (or (merge (acc :enums) (gen-node-enum node)) {})
+                         :interfaces (or (merge (acc :interfaces) (gen-node-interface node)) {})}))
+           {} (filter-other-nodes nodes-seq))
+          (reduce
+           (fn [acc [key node]]
+             (merge acc {:input-objects (or (merge (acc :input-objects) (gen-node-type node)) {})}))
+           coll (filter-input-nodes nodes-seq))
+          (reduce
+           (fn [acc [key node]]
+             (merge acc {:mutations (or (merge (acc :mutations) (gen-query-type node)) {})}))
+           coll (filter-mutation-nodes nodes-seq))
+          (reduce
+           (fn [acc [key node]]
+             (merge acc {:unions (or (merge (acc :unions) (gen-union-type node)) {})}))
+           coll (filter-union-nodes nodes-seq))
+          (reduce
+           (fn [acc [key node]]
+             (merge acc {:queries (or (merge (acc :queries) (gen-query-type node)) {})}))
+           coll (filter-query-nodes nodes-seq)))))
 
 ; (pprint (resolve-inheritance (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])))
 ; (pprint (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
