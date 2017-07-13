@@ -148,6 +148,12 @@
   "Returns the arity of a field"
   (:arity (:return field)))
 
+(defn- wrap-nilable [field expression]
+  "Wrap the expression in a nilable spec if the field is optional"
+  (if ((field :return) :required)
+    expression
+    (list 's/nilable expression)))
+
 (defn- get-predicate [field opts]
   "Builds the predicate that validates the spec of a field"
   (let [type (get-field-type field)]
@@ -168,17 +174,19 @@
 
 (defn- get-spec-validator [field opts]
   "Builds the validator of a spec based on its arity and type."
-  (let [[from to] (get-field-arity field)]
-    (if (and (= from 1) (= to 1))
-      (if (is-interface? (get-field-type field) opts)
-        (interface-wrap-code (get-concrete-types (get-field-type field) opts) opts)
-        (get-predicate field opts))
-      (concat
-       (list 's/coll-of
-             (if (is-interface? (get-field-type field) opts)
-               (interface-wrap-code (get-concrete-types (get-field-type field) opts) opts)
-               (get-predicate field opts)))
-       (get-min-max-count field)))))
+  (wrap-nilable
+   field
+   (let [[from to] (get-field-arity field)]
+     (if (and (= from 1) (= to 1))
+       (if (is-interface? (get-field-type field) opts)
+         (interface-wrap-code (get-concrete-types (get-field-type field) opts) opts)
+         (get-predicate field opts))
+       (concat
+        (list 's/coll-of
+              (if (is-interface? (get-field-type field) opts)
+                (interface-wrap-code (get-concrete-types (get-field-type field) opts) opts)
+                (get-predicate field opts)))
+        (get-min-max-count field))))))
 
 (defn- get-validation-function [field opts]
   "Checks for a field annotation. If there is one, wraps the get-spec-validator in a s/and statement.
@@ -309,8 +317,8 @@
 
 ; (def out (gen "philz-api.specs" "philz-api.validators" "id" ["test/philz/main.umlaut"]))
 ; (clojure.pprint/pprint out)
-; (clojure.pprint/pprint (out "id"))
-; (spit "output/requires.clj" (out "query-root"))
+; (clojure.pprint/pprint (out "test-a"))
+; (spit "output/requires.clj" (out "test"))
 ; (clojure.pprint/pprint "--------------")
 ; (clojure.pprint/pprint (out "viewer-node"))
 ; (clojure.pprint/pprint "--------------")

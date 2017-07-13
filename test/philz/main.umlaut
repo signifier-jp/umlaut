@@ -130,6 +130,13 @@ enum CreamType {
   CREAM WHOLE TWO_PERCENT LOW_FAT NON_FAT ALMOND SOY VANILLA_SOY
 }
 
+type Test {
+  a: String?
+  b: String[1..5]?
+  c: String
+  d: String[1..5]
+}
+
 @lang/dot color olivedrab1
 @doc "Represents one product in the Menu, or one of many underlying products in a carousel item."
 @lang/spec validator validate-product

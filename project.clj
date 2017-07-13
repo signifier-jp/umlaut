@@ -7,8 +7,7 @@
                  [clojure-future-spec "1.9.0-alpha14"]
                  [camel-snake-kebab "0.4.0"]
                  [instaparse "1.4.7"]]
-  :plugins [[lein-umlaut "0.1.0-SNAPSHOT"]
-            [lein-cljfmt "0.5.6"]
+  :plugins [[lein-cljfmt "0.5.6"]
 			[lein-kibit "0.1.5"]]
   :main umlaut.core
   :target-path "target/%s"
