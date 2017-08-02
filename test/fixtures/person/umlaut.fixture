@@ -97,7 +97,7 @@
       :params? false,
       :field-annotations
       {:documentation
-       "This is a documentation inside a query field"}}],
+       "This is a documentation inside a query field (with parenthesis in the comment)"}}],
     :parents [],
     :annotations
     [{:space "lang/lacinia", :key "identifier", :value "query"}

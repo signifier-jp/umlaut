@@ -40,7 +40,7 @@ enum RelationshipStatus {
 type QueryRoot {
   unionQuery(): UnionType
   getFriends(): Person[0..n] {
-    @doc "This is a documentation inside a query field"
+    @doc "This is a documentation inside a query field (with parenthesis in the comment)"
   }
 }
 

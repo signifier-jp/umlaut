@@ -52,6 +52,6 @@
  {:unionQuery {:type (non-null :UnionType), :isDeprecated false},
   :getFriends
   {:type (non-null (list (non-null :Person))),
-   :description "This is a documentation inside a query field",
+   :description "This is a documentation inside a query field (with parenthesis in the comment)",
    :isDeprecated false},
   :description "An employee inherits from Person"}}
