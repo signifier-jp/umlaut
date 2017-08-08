@@ -138,7 +138,7 @@
 (defn gen [files]
   "Returns a valid graphQL schema string"
   (let [umlaut (resolve-inheritance (umlaut.core/main files))
-        nodes-seq (seq (umlaut :nodes))]
+        nodes-seq (sort (seq (umlaut :nodes)))]
     (as-> nodes-seq coll
           (reduce (fn [acc [key node]]
                     (str acc (gen-entry node)))
