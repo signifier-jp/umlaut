@@ -48,7 +48,7 @@ type QueryRoot {
 @doc "This is a comment above a mutation ([]{-})"
 @lang/dot color aquamarine
 type MutationRoot {
-  mutation: string {
+  mutation: String {
     @doc "Test comment with special characters: (with [with {with ()}]){}[]...+-*/\^%&$#@!?"
   }
 }

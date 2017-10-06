@@ -109,7 +109,7 @@
    {:id "MutationRoot",
     :fields
     [{:id "mutation",
-      :return {:type-id "string", :arity [1 1], :required true},
+      :return {:type-id "String", :arity [1 1], :required true},
       :params [],
       :params? false,
       :field-annotations

@@ -40,7 +40,7 @@
    :description "This is a comment over an interface"}},
  :mutations
  {:mutation
-  {:type (non-null string),
+  {:type (non-null String),
    :description
    "Test comment with special characters: (with [with {with ()}]){}[]...+-*/\\^%&$#@!?",
    :isDeprecated false},

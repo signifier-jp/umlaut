@@ -19,7 +19,7 @@ subgraph Person {
   Employee [label = "{Employee|salary: Float\lstatus: RelationshipStatus\lprofession: Profession?\lchangeSalary(newSalary: Float): Float\lfriends: String[0..4]\laddress: String\l}" fillcolor = navajowhite, style=filled]
   RelationshipStatus [label = "{\<\< enum\>\>\nRelationshipStatus|Single\lMarried\l}" fillcolor = lightblue, style=filled]
   QueryRoot [label = "{QueryRoot|unionQuery: UnionType\lgetFriends: Person[0..n]\l}"]
-  MutationRoot [label = "{MutationRoot|mutation: string\l}" fillcolor = aquamarine, style=filled]
+  MutationRoot [label = "{MutationRoot|mutation: String\l}" fillcolor = aquamarine, style=filled]
   UnionType [label = "{\<\< union\>\>\nUnionType|Person\lProfession\l}"]
   Profession [label = "{Profession|name: String\l}"]
 }

@@ -14,7 +14,7 @@ type Employee implements Person {
 # This is a comment above a mutation ([]{-})
 type MutationRoot {
   # Test comment with special characters: (with [with {with ()}]){}[]...+-*/\^%&$#@!?
-  mutation: string!
+  mutation: String!
 }
 
 # This is a comment over an interface
