@@ -11,9 +11,9 @@ type Employee implements Person {
   name: String!
 }
 
-# This is a comment above a mutation
+# This is a comment above a mutation ([]{-})
 type MutationRoot {
-  # I can also add documentaiton here
+  # Test comment with special characters: (with [with {with ()}]){}[]...+-*/\^%&$#@!?
   mutation: string!
 }
 

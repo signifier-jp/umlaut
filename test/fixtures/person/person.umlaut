@@ -45,11 +45,11 @@ type QueryRoot {
 }
 
 @lang/lacinia identifier mutation
-@doc "This is a comment above a mutation"
+@doc "This is a comment above a mutation ([]{-})"
 @lang/dot color aquamarine
 type MutationRoot {
   mutation: string {
-    @doc "I can also add documentaiton here"
+    @doc "Test comment with special characters: (with [with {with ()}]){}[]...+-*/\^%&$#@!?"
   }
 }
 

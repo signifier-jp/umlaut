@@ -113,13 +113,14 @@
       :params [],
       :params? false,
       :field-annotations
-      {:documentation "I can also add documentaiton here"}}],
+      {:documentation
+       "Test comment with special characters: (with [with {with ()}]){}[]...+-*/\\^%&$#@!?"}}],
     :parents [],
     :annotations
     [{:space "lang/lacinia", :key "identifier", :value "mutation"}
      {:space :documentation,
       :key "",
-      :value "This is a comment above a mutation"}
+      :value "This is a comment above a mutation ([]{-})"}
      {:space "lang/dot", :key "color", :value "aquamarine"}]}],
   "UnionType"
   [:enum
