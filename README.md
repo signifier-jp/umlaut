@@ -1,6 +1,12 @@
 # umlaut
 
-A Clojure tool that receives a umlaut schema and outputs code.
+A Clojure tool that receives a umlaut schema and outputs code. You can download umlaut using clojars:
+
+[![Clojars Project](https://img.shields.io/clojars/v/umlaut.svg)](https://clojars.org/umlaut)
+
+You may also be interested in umlaut's CLI tool, lein-umlaut:
+[![Clojars Project](https://img.shields.io/clojars/v/lein-umlaut.svg)](https://clojars.org/lein-umlaut)
+
 
 ## Schema language
 
@@ -21,6 +27,7 @@ In order to use it as library, every generator implements a `gen` methods. Dig i
 ## General
 
 The primitive types are: `["String" "Float" "Integer" "Boolean" "DateTime", "ID"]`. If an attribute has a type that is not primitive, it must be properly declared.
+If you try to declare and attribute that is not primitive or declared, an error will be thrown.
 
 By default, all declared fields are *non-null*. Nullable fields must have the symbol `?` after the attribute type.
 
