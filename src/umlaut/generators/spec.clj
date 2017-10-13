@@ -1,11 +1,13 @@
 (ns umlaut.generators.spec
-  (:require [clojure.java.io :as io]
-            [umlaut.utils :refer :all]
+  (:require [camel-snake-kebab.core :refer [->kebab-case-string]]
             [umlaut.core :as core]
-            [umlaut.models :as model]
-            [camel-snake-kebab.core :refer [->camelCaseKeyword
-                                            ->PascalCaseKeyword
-                                            ->kebab-case-string]]))
+            [umlaut.utils :refer [annotations-by-space-key
+                                  primitive?
+                                  interface?
+                                  in?
+                                  not-primitive?
+                                  union?
+                                  resolve-inheritance]]))
 
 (def ^:private primitive-predicates
   {"ID" 'string?

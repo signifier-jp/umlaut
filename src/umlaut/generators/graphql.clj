@@ -1,9 +1,11 @@
 (ns umlaut.generators.graphql
-  (:require [clojure.java.io :as io]
-            [umlaut.utils :refer :all]
+  (:require [clojure.string :as string]
             [umlaut.core :as core]
-            [clojure.string :as string]))
-(use '[clojure.pprint :only [pprint]])
+            [umlaut.utils :refer [annotations-by-space
+                                  annotations-by-space-key
+                                  annotation-comparer
+                                  in?
+                                  resolve-inheritance]]))
 
 (defn- gen-documentation [node]
   (let [docs (first (annotations-by-space :documentation (node :annotations)))]
@@ -125,7 +127,7 @@
    "\n\n"))
 
 (defn- filter-union-nodes [nodes]
-  (filter (annotation-comprarer "lang/graphql" "identifier" "union") nodes))
+  (filter (annotation-comparer "lang/graphql" "identifier" "union") nodes))
 
 (defn- build-ignored-list [nodes]
   (flatten (list
@@ -146,5 +148,3 @@
           (reduce (fn [acc [key node]]
                     (str acc (gen-union-entry node)))
                   coll (filter-union-nodes nodes-seq)))))
-
-; (save-string-to-file "output/main.graphql" (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))

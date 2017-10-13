@@ -1,8 +1,7 @@
 (ns umlaut.utils
-  (:require [clojure.string :as string]
-            [clojure.spec.gen :as gen]))
-(use '[clojure.pprint :only [pprint]])
-(use '[clojure.java.shell :only [sh]])
+  (:require [clojure.java.shell :refer [sh]]
+            [clojure.string :as string]
+            [clojure.pprint :refer [pprint]]))
 
 (def primitive-types ["String" "Float" "Integer" "Boolean" "DateTime", "ID"])
 
@@ -79,7 +78,7 @@
   "Filter an array of annotation by space, key, and value"
   (filter #(and (= space (% :space)) (= value (% :value)) (= key (% :key))) annotations))
 
-(defn annotation-comprarer [space key value]
+(defn annotation-comparer [space key value]
   "To be used as filter function of (seq (umlaut :nodes))"
   (fn [node]
     (let [annotations (annotations-by-space space ((last (last node)) :annotations))]
@@ -87,12 +86,12 @@
 
 (defn save-map-to-file [filepath content]
   "Receives a file name and a map, prints the map into a string and saves the string in filepath"
-  (clojure.pprint/pprint (str "Saved " filepath))
+  (println (str "Saved " filepath))
   (spit filepath (with-out-str (pprint content))))
 
 (defn save-string-to-file [filepath content]
   "Receives a file name and a string, saves the string in filepath"
-  (clojure.pprint/pprint (str "Saved " filepath))
+  (println "Saved " filepath)
   (spit filepath content))
 
 (defn save-dotstring-to-image [filepath content]

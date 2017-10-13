@@ -1,13 +1,12 @@
 (ns umlaut.generators.dot
   (:require [clojure.java.io :as io]
-            [umlaut.models :as model]
-            [umlaut.core :as core]
-            [umlaut.utils :refer :all]
-            [clojure.spec :as s]
             [clojure.string :as string]
-            [clojure.spec.test :as stest]))
-(use '[clojure.java.shell :only [sh]])
-(use '[clojure.pprint :only [pprint]])
+            [umlaut.core :as core]
+            [umlaut.utils :refer [in?
+                                  union?
+                                  annotations-by-space-key
+                                  umlaut-base
+                                  not-primitive?]]))
 
 (def header (slurp (io/resource "templates/header.dot")))
 

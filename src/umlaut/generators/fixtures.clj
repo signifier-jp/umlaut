@@ -1,12 +1,10 @@
 (ns umlaut.generators.fixtures
-  (:require [clojure.java.io :as io]
-            [umlaut.generators.dot :as dot]
-            [umlaut.generators.lacinia :as lacinia]
+  (:require [umlaut.generators.dot :as dot]
             [umlaut.generators.graphql :as graphql]
-            [umlaut.utils :refer :all]
-            [clojure.spec :as s]
-            [clojure.spec.test :as stest]))
-(use '[clojure.pprint :only [pprint]])
+            [umlaut.generators.lacinia :as lacinia]
+            [umlaut.utils :refer [save-map-to-file
+                                  save-string-to-file
+                                  primitive?]]))
 
 ;; IMPORTANT!
 ;; This fixture generator should ONLY be used if you changed

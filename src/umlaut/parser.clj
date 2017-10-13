@@ -1,9 +1,10 @@
 (ns umlaut.parser
   (:require [clojure.java.io :as io]
+            [clojure.string :refer [split]]
             [instaparse.core :as insta]
-            [umlaut.utils :as utils]))
-(use '[clojure.pprint :only [pprint]])
-(use '[clojure.string :only (split)])
+            [umlaut.utils :refer [seek
+                                  type-interface-or-enum?
+                                  diagram?]]))
 
 (def parser
   (insta/parser
@@ -54,7 +55,7 @@
     (merge return {:required (required? node)})))
 
 (defn- process-annotations [args]
-  (let [field (utils/seek #(= (first %) :field-annotations) args)]
+  (let [field (seek #(= (first %) :field-annotations) args)]
     (reduce
      (fn [acc el]
        (when (= (first el) :annotation)
@@ -143,15 +144,12 @@
                                     :method to-method
                                     :diagram to-diagram
                                     :diagram-group to-diagram-group} ast)]
-    {:nodes (zipmap (id-list (filter utils/type-interface-or-enum? node-list)) (filter utils/type-interface-or-enum? node-list))
-     :diagrams (zipmap (id-list (filter utils/diagram? node-list)) (filter utils/diagram? node-list))}))
+    {:nodes (zipmap (id-list (filter type-interface-or-enum? node-list)) (filter type-interface-or-enum? node-list))
+     :diagrams (zipmap (id-list (filter diagram? node-list)) (filter diagram? node-list))}))
 
 (defn parse
   [content]
   (let [parsed (parser content)]
     (when (insta/get-failure parsed)
-      (throw (Exception. (with-out-str (pprint (insta/get-failure parsed))))))
+      (throw (Exception. (with-out-str (println (insta/get-failure parsed))))))
     (transformer parsed)))
-
-; (pprint (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
-; (core/main ["test/philz/main.umlaut"])

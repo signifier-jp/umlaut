@@ -10,9 +10,9 @@
 (deftest core-test
   (testing "Umlaut input")
   (let [diff (data/diff fixture
-              (umlaut.core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))]
+                        (umlaut.core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))]
     (is (and
-          (nil? (first diff))
-          (nil? (second diff))))))
+         (nil? (first diff))
+         (nil? (second diff))))))
 
 (run-all-tests)

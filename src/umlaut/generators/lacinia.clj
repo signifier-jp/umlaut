@@ -1,9 +1,12 @@
 (ns umlaut.generators.lacinia
-  (:require [clojure.java.io :as io]
-            [umlaut.utils :refer :all]
-            [umlaut.core :as core]
-            [umlaut.models :as model]))
-(use '[clojure.pprint :only [pprint]])
+  (:require [umlaut.core :as core]
+            [umlaut.utils :refer [annotations-by-space-key
+                                  annotations-by-space
+                                  annotations-by-space
+                                  annotation-comparer
+                                  in?
+                                  resolve-inheritance
+                                  primitive?]]))
 
 (def space "lang/lacinia")
 
@@ -106,7 +109,6 @@
       (->> {:fields (process-declaration info)
             :implements (attr-to-parents info)}
            (check-add-documentation info)
-          ;  (check-add-deprecation info)
            (assoc {} (keyword (info :id)))))))
 
 (defn- gen-node-enum [node]
@@ -114,7 +116,6 @@
     (let [info (second node)]
       (->> {:values (attr-to-values info)}
            (check-add-documentation info)
-          ; (check-add-deprecation info)
            (assoc {} (keyword (info :id)))))))
 
 (defn- gen-node-interface [node]
@@ -122,13 +123,11 @@
     (let [info (second node)]
       (->> {:fields (process-declaration info)}
            (check-add-documentation info)
-          ; (check-add-deprecation info)
            (assoc {} (keyword (info :id)))))))
 
 (defn- gen-query-type [node]
   (let [info (second node)]
     (check-add-documentation info (process-declaration info))))
-      ; (check-add-deprecation info))))
 
 (defn- gen-union-type [node]
   (when (= (first node) :enum)
@@ -138,16 +137,16 @@
            (assoc {} (keyword (info :id)))))))
 
 (defn- filter-input-nodes [nodes]
-  (filter (annotation-comprarer space "identifier" "input") nodes))
+  (filter (annotation-comparer space "identifier" "input") nodes))
 
 (defn- filter-mutation-nodes [nodes]
-  (filter (annotation-comprarer space "identifier" "mutation") nodes))
+  (filter (annotation-comparer space "identifier" "mutation") nodes))
 
 (defn- filter-query-nodes [nodes]
-  (filter (annotation-comprarer space "identifier" "query") nodes))
+  (filter (annotation-comparer space "identifier" "query") nodes))
 
 (defn- filter-union-nodes [nodes]
-  (filter (annotation-comprarer space "identifier" "union") nodes))
+  (filter (annotation-comparer space "identifier" "union") nodes))
 
 (defn- build-ignored-list [nodes]
   (flatten (list
@@ -187,7 +186,3 @@
            (fn [acc [key node]]
              (merge acc {:queries (or (merge (acc :queries) (gen-query-type node)) {})}))
            coll (filter-query-nodes nodes-seq)))))
-
-; (pprint (resolve-inheritance (core/main ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"])))
-; (pprint (gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))
-; (pprint (gen ["test/philz/main.umlaut"]))
