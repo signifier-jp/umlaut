@@ -54,14 +54,14 @@ generate code as part of your project - i.e. reading an Umlaut file as part of y
 system's bootstrap and injecting a generated schema as part of initialization of a DB or
 any other system):
 
-[![Clojars Project](http://clojars.org/workco/umlaut/latest-version.svg)](http://clojars.org/workco/umlaut)
+[![Clojars Project](http://clojars.org/umlaut/latest-version.svg)](http://clojars.org/umlaut)
 
 If you need to use Umlaut as a plugin to your project, add the following line to your
 `project.clj` plugins (situations where you would need this setup are those where you are using
 the Umlaut lein plugin for a single project and want to make sure that all other developers
 in the project have access to it):
 
-[![Clojars Project](http://clojars.org/workco/lein-umlaut/latest-version.svg)](http://clojars.org/workco/lein-umlaut)
+[![Clojars Project](http://clojars.org/lein-umlaut/latest-version.svg)](http://clojars.org/lein-umlaut)
 
 Then simply run from your project directory:
 
