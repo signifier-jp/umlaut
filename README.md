@@ -29,7 +29,7 @@ of truth.
 
 ### Option 1: As a lein plugin
 
-The recommended approach is to use Umlaut via the `lein-umlaut` plugin on your lein 
+The recommended approach is to use Umlaut via the `lein-umlaut` plugin on your lein
 `profiles.clj` file (`~/.lein/profiles.clj`). This will make sure that the Umlaut lein
 plugin is available globally for your usage:
 
@@ -108,7 +108,7 @@ $ lein umlaut spec [umlaut-files-folder] [output-folder] [spec-package] [custom-
 
 For further details run `$ lein help umlaut`
 
- 
+
 ### Usage as a Library
 
 Every generator implements a `gen` method. You can either dig into the source code at
@@ -290,7 +290,7 @@ Annotations add extra metadata to your model and are either used for documentati
 or can be used by the generators. Generators tend to use these annotations to know how you
 want your schema to be interpreted in that target environment.
 
-Annotations have one of these two forms: 
+Annotations have one of these two forms:
 
 - `@<space> <key> [value]`
 - `@<space> [value]`
@@ -310,7 +310,7 @@ type QueryRoot {
 }
 ```
 
-You can document your schema using the `@doc` space. This can be done above the 
+You can document your schema using the `@doc` space. This can be done above the
 type/interface/enum definition, like this...
 
 ```
@@ -370,7 +370,7 @@ You can specify the colors of a box this:
 ```
 
 The available colors are defined here: http://www.graphviz.org/doc/info/colors.html
-This annotation needs to be above the definition of a type/enum/interface. 
+This annotation needs to be above the definition of a type/enum/interface.
 
 To use this generator you must have [graphviz](http://www.graphviz.org/) installed.
 This package is available for Mac via [Homebrew](http://brewformulas.org/Graphviz) and Windows
@@ -380,7 +380,7 @@ via [direct download](http://www.graphviz.org/Download_windows.php).
 ## Lacinia Generator
 
 Lacinia is a GraphQL framework for Clojure. It uses an [EDN](https://github.com/edn-format/edn)
-file with all the types, queries, inputs, mutations, and enums of your schema.
+file with all the types, queries, inputs, mutations, subscriptions, and enums of your schema.
 
 Umlaut will generate the EDN expected by Lacinia.
 
@@ -429,7 +429,7 @@ Will generate:
 The Lacinia generator uses annotations to describe certain expected behaviours that are specific
 to the use of schemas in Lacinia itself.
 
-In the above example, we used `@lang/lacinia identifier query` to indicate that `QueryRoot` 
+In the above example, we used `@lang/lacinia identifier query` to indicate that `QueryRoot`
 should be placed under the `queries` key. In practice this means that all fields within
 `QueryRoot` will be added to the root query of your GraphQL schema.
 
@@ -437,6 +437,7 @@ The following list describes the Lacinia-specific annotations that can be attach
 
 ```
 @lang/lacinia identifier query    // Qualifies the type as a GraphQL query root
+@lang/lacinia identifier subscription // Qualifies the type as a GraphQL subscription root
 @lang/lacinia identifier mutation // Qualifies the type as a GraphQL mutations root
 @lang/lacinia identifier input    // Qualifies the type as a GraphQL input objects
 ```
@@ -445,7 +446,11 @@ The following list describes the Lacinia-specific annotations that can be attach
 
 ```
 @lang/lacinia resolver resolve-name  // Tells Lacinia the field requires a `resolve-name` resolver
+@lang/lacinia stream stream-name  // Tells Lacinia the field requires a stream called `stream-name`
 ```
+Node that streams are used for subscriptions and resolvers used for queries, mutations, and fields.
+After generating lacinia's EDN, the resolvers and streams need to be attached
+ using: `com.walmartlabs.lacinia.util/attach-resolvers` and `com.walmartlabs.lacinia.util/attach-streamers` respectively.
 
 Example:
 
@@ -456,9 +461,24 @@ type Person {
     @lang/lacinia resolver resolve-name
   }
 }
+
+@lang/lacinia identifier subscription
+type SubscriptionRoot {
+    getMessages(roomId: String): String[0..n] {
+      @lang/lacinia stream stream-messages
+    }
+}
+
+@lang/lacinia identifier query
+type QueryRoot {
+    messages(roomId: String): String[0..n] {
+      @lang/lacinia resolver resolve-messages
+    }
+}
 ```
 
-You can also add annotations at a global level like this:
+You can also add annotations at a global level like this, which for now are only
+used to create GraphQL unions:
 
 ```
 annotations {
@@ -466,25 +486,23 @@ annotations {
 }
 ```
 
-For now, this is only used to create GraphQL unions.
-
 
 ## Spec Generator
 
-Umlaut can generate spec code based on your schema. This is a more complex generator that 
+Umlaut can generate spec code based on your schema. This is a more complex generator that
 expects several parameters.
 
-You can have a `@lang/spec validator <name>` above a type to add a custom validator function 
+You can have a `@lang/spec validator <name>` above a type to add a custom validator function
 for that type. This custom validator function needs to be implemented in a common validator file.
 
-Interfaces do not generate spec code, they are replaced by `s/or` of the types that implement 
+Interfaces do not generate spec code, they are replaced by `s/or` of the types that implement
 that interface.
 
 TBD Examples
 
 ## List of Reserved Words
 
-These words are reserved for any of the supported generators and should not be 
+These words are reserved for any of the supported generators and should not be
 used when defining a new type/interface/enum or field:
 
 - `node`
