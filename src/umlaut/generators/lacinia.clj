@@ -70,13 +70,22 @@
         out))
     out))
 
+(defn- check-add-stream [field out]
+  (if (contains? (field :field-annotations) :others)
+    (let [resolver (annotations-by-space-key space "stream" ((field :field-annotations) :others))]
+      (if (pos? (count resolver))
+        (merge out {:stream (keyword ((first resolver) :value))})
+        out))
+    out))
+
 (defn- process-field [field]
   "Receives a method and add an entry in the fields map"
   (->> (process-variable (field :return))
        (check-add-field-documentation field)
        (check-add-field-deprecation field)
        (check-add-params field)
-       (check-add-resolver field)))
+       (check-add-resolver field)
+       (check-add-stream field)))
 
 (defn- process-declaration [info]
   "Thread several reduces to build a map of types, args, and resolvers"
@@ -136,6 +145,11 @@
            (check-add-documentation info)
            (assoc {} (keyword (info :id)))))))
 
+(defn- gen-subscription-type [node]
+  (when (= (first node) :type)
+    (let [info (second node)]
+      (check-add-documentation info (process-declaration info)))))
+
 (defn- filter-input-nodes [nodes]
   (filter (annotation-comparer space "identifier" "input") nodes))
 
@@ -145,6 +159,9 @@
 (defn- filter-query-nodes [nodes]
   (filter (annotation-comparer space "identifier" "query") nodes))
 
+(defn- filter-subscription-nodes [nodes]
+  (filter (annotation-comparer space "identifier" "subscription") nodes))
+
 (defn- filter-union-nodes [nodes]
   (filter (annotation-comparer space "identifier" "union") nodes))
 
@@ -153,6 +170,7 @@
             (map first (filter-input-nodes nodes))
             (map first (filter-mutation-nodes nodes))
             (map first (filter-union-nodes nodes))
+            (map first (filter-subscription-nodes nodes))
             (map first (filter-query-nodes nodes)))))
 
 (defn- filter-other-nodes [nodes]
@@ -182,6 +200,10 @@
            (fn [acc [key node]]
              (merge acc {:unions (or (merge (acc :unions) (gen-union-type node)) {})}))
            coll (filter-union-nodes nodes-seq))
+          (reduce
+           (fn [acc [key node]]
+             (merge acc {:subscriptions (or (merge (acc :subscriptions) (gen-subscription-type node)) {})}))
+           coll (filter-subscription-nodes nodes-seq))
           (reduce
            (fn [acc [key node]]
              (merge acc {:queries (or (merge (acc :queries) (gen-query-type node)) {})}))

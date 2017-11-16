@@ -53,6 +53,16 @@ type MutationRoot {
   }
 }
 
+@lang/lacinia identifier subscription
+type SubscriptionRoot {
+    getMessages(roomId: String): String[0..n] {
+      @lang/lacinia stream stream-messages
+    }
+    getLogs: String[0..n] {
+      @lang/lacinia stream stream-logs
+    }
+}
+
 @lang/lacinia identifier union
 @lang/graphql identifier union
 @doc "This is an union type"
