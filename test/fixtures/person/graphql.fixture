@@ -40,6 +40,11 @@ enum RelationshipStatus {
   Married
 }
 
+type SubscriptionRoot {
+  getMessages(roomId: String!): [String!]!
+  getLogs: [String!]!
+}
+
 # This is an union type
 union UnionType = Person | Profession
 
