@@ -49,6 +49,16 @@
  {:UnionType
   {:members [:Person :Profession],
    :description "This is an union type"}},
+ :subscriptions
+ {:getMessages
+  {:type (non-null (list (non-null String))),
+   :isDeprecated false,
+   :args {:roomId {:type (non-null String)}},
+   :stream :stream-messages},
+  :getLogs
+  {:type (non-null (list (non-null String))),
+   :isDeprecated false,
+   :stream :stream-logs}},
  :queries
  {:unionQuery {:type (non-null :UnionType), :isDeprecated false},
   :getFriends

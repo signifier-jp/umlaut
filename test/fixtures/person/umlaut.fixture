@@ -122,6 +122,38 @@
       :key "",
       :value "This is a comment above a mutation ([]{-})"}
      {:space "lang/dot", :key "color", :value "aquamarine"}]}],
+  "SubscriptionRoot"
+  [:type
+   {:id "SubscriptionRoot",
+    :fields
+    [{:id "getMessages",
+      :return {:type-id "String", :arity [0 "n"], :required true},
+      :params
+      [{:type-id "String",
+        :arity [1 1],
+        :id "roomId",
+        :relationship-type :attribute,
+        :required true}],
+      :params? true,
+      :field-annotations
+      {:others
+       [{:space "lang/lacinia",
+         :key "stream",
+         :value "stream-messages"}]}}
+     {:id "getLogs",
+      :return {:type-id "String", :arity [0 "n"], :required true},
+      :params [],
+      :params? false,
+      :field-annotations
+      {:others
+       [{:space "lang/lacinia",
+         :key "stream",
+         :value "stream-logs"}]}}],
+    :parents [],
+    :annotations
+    [{:space "lang/lacinia",
+      :key "identifier",
+      :value "subscription"}]}],
   "UnionType"
   [:enum
    {:id "UnionType",
