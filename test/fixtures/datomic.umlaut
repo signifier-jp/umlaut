@@ -1,0 +1,112 @@
+type Client {
+  name: String {
+    @lang/datomic unique identity
+  }
+}
+
+type ProjectState {
+  name: String {
+    @lang/datomic unique identity
+  }
+}
+
+type Project {
+  tenKId: Integer {
+    @lang/datomic unique identity
+    @lang/datomic precision long
+  }
+  name: String {
+    @lang/datomic unique value
+  }
+  startsAt: DateTime
+  endsAt: DateTime
+  client: Client
+  projectState: ProjectState
+  archived: Boolean
+}
+
+type Role {
+  name: String {
+    @lang/datomic unique identity
+  }
+}
+
+type Discipline {
+  name: String {
+    @lang/datomic unique identity
+  }
+  value: Float {
+    @lang/datomic precision bigdec
+  }
+}
+
+type Location {
+  name: String {
+    @lang/datomic unique identity
+  }
+}
+
+type Employee {
+  tenKId: Integer {
+    @lang/datomic unique identity
+    @lang/datomic precision long
+    @doc "The ID on 10,000ft"
+  }
+  firstName: String
+  lastName: String
+  displayName: String
+  email: String {
+    @lang/datomic index true
+  }
+  role: Role
+  discipline: Discipline
+  location: Location
+  archived: Boolean
+  relationshipStatus: RelationshipStatus
+  teamMembers: Employee[0..n]
+}
+
+type Assignment {
+  tenKId: Integer {
+    @lang/datomic unique identity
+    @lang/datomic precision long
+  }
+  percent: Float
+  billRate: Float {
+    @lang/datomic precision double
+  }
+  employee: Employee
+  project: Project
+  startsAt: DateTime
+  endsAt: DateTime
+  description: String {
+    @lang/datomic fulltext true
+  }
+}
+
+type AllNumbers {
+  float: Float
+  double: Float {
+    @lang/datomic precision double
+  }
+  long: Integer
+  bigint: Integer {
+    @lang/datomic precision bigint
+  }
+}
+
+type AllStrings {
+  id: ID
+  string: String
+  keyword: String {
+    @lang/datomic precision keyword
+  }
+  uri: String {
+    @lang/datomic precision uri
+  }
+}
+
+enum RelationshipStatus {
+  Single
+  Married
+}
