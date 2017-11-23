@@ -21,6 +21,7 @@ of truth.
 * [Diagram Generator](#diagram-generator)
 * [Lacinia Generator](#lacinia-generator)
 * [Spec Generator](#spec-generator)
+* [Datomic Generator](#datomic-generator)
 * [List of Reserved Words](#list-of-reserved-words)
 * [Bugs](#bugs)
 * [Help!](#help)
@@ -117,6 +118,7 @@ Every generator implements a `gen` method. You can either dig into the source co
 * [Diagram Generator](#diagram-generator)
 * [Lacinia Generator](#lacinia-generator)
 * [Spec Generator](#spec-generator)
+* [Datomic Generator](#datomic-generator)
 
 ## Schema Language
 
@@ -499,6 +501,120 @@ Interfaces do not generate spec code, they are replaced by `s/or` of the types t
 that interface.
 
 TBD Examples
+
+## Datomic Generator
+
+Umlaut can generate Datomic schemas. In order to use it first require the generator in your code:
+
+```clojure
+(require '[umlaut.generators.datomic :as datomic])
+```
+
+Then call function `datomic/gen` passing it the paths of all the umlaut files you want generated.
+
+A simple example, the following umlaut file...
+
+```
+type Person {
+  name: String 
+  relationshipStatus: RelationshipStatus {
+    @doc "Whether the person is married or single."
+  }
+}
+
+enum RelatiionshipStatus {
+  SINGLE
+  MARRIED
+}
+```
+
+... will generate the following Datomic schema:
+
+```clojure
+[{:db/ident :person/name
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one}
+ {:db/ident :person/relationship-status
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc "Whether the person is married or single."}
+ {:db/ident :relationship-status/single}
+ {:db/ident :relationship-status/married}]
+```
+
+### Uniqueness, identity and indexes:
+
+In order to annotate any field for uniqueness or identity use the `@lang/datomic value <...>` form.
+Example `email` as an `unique value`:
+
+```
+type Person {
+  email: String {
+    @lang/datomic unique value
+  }
+}
+```
+
+Example `name` as an `unique identity`:
+
+```
+type Person {
+  email: String {
+    @lang/datomic unique identity
+  }
+}
+```
+
+Indexes can be achieved with the annotations `@lang/datomic index true` and `@lang/datomic fulltext true`.
+
+Example name is indexed:
+
+```
+type Person {
+  name: String {
+    @lang/datomic index true
+  }
+}
+```
+
+Example description is fulltext indexed:
+
+```
+type Person {
+  name: String {
+    @lang/datomic fulltext true
+  }
+}
+```
+
+### Fine-grained types
+
+Datomic has a much finer-grained set of scalar types than Umlaut so the annotation `@lang/datomic precision <...>` is used to give access to these types. The table below summarizes how to use it:
+
+| Datomic type | Annotation                        | Resulting Datomic type |
+| ------------ | --------------------------------- | ---------------------- |
+| `String`     | None                              | `:db.type/string`      |
+| `String`     | `@lang/datomic precision keyword` | `:db.type/keyword`     |
+| `String`     | `@lang/datomic precision uri`     | `:db.type/uri`         |
+| `Float`      | None                              | `:db.type/float`       |
+| `Float`      | `@lang/datomic precision double`  | `:db.type/double`      |
+| `Float`      | `@lang/datomic precision bigdec`  | `:db.type/bigdec`      |
+| `Integer`    | None                              | `:db.type/long`        |
+| `Integer`    | `@lang/datomic precision bigint`  | `:db.type/bigint`      |
+| `Boolean`    | None                              | `:db.type/boolean`     |
+| `DateTime`   | None                              | `:db.type/instant`     |
+| `ID`         | None                              | `:db.type/uuid`        |
+
+
+### Limitations and caveats of the Datomic generator:
+
+1. `:db.cardinality` will be automatically set to `:db.cardinality/many` for any cardinality different than `1`.
+2. Bidirecational relationships therefore are disencouraged or you'll end up not knowing which entity owns what. The recommendation is to use Datomic's reverse lookup in queries (i.e. `:person/_department` from the `department` entity).
+3. `:db/ident` is created by converting everything to kebab casing (an opinionated decision).
+4. `interfaces` are not created as there's no such concept in Datomic. All the inherited fields though are properly created. Feel free use interfaces if you have too many repeated fields and want to avoid repetition.
+5. Fields that have parameters (potential methods in some languages?) are totally ignored (as in, not generated at all). We wouldn't know what to do with them from a Datomic standpoint.
+6. Optional and non-optional markers don't mean anything as Datomic doesn't capture this concept.
+
 
 ## List of Reserved Words
 

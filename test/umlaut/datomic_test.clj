@@ -5,12 +5,12 @@
             [clojure.data :as data]))
 (use '[clojure.pprint :only [pprint]])
 
-(def fixture (read-string (slurp "test/fixtures/person/lacinia.fixture")))
+(def fixture (read-string (slurp "test/fixtures/datomic.edn")))
 
 (deftest datomic-test
   (testing "Datomic generator test"
     (let [diff (data/diff fixture
-                          (datomic/gen ["test/fixtures/person/person.umlaut" "test/fixtures/person/profession.umlaut"]))]
+                          (datomic/gen ["test/fixtures/datomic.umlaut"]))]
       (is (and
            (nil? (first diff))
            (nil? (second diff)))))))
