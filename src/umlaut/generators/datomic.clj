@@ -1,31 +1,30 @@
 (ns umlaut.generators.datomic
   (:require [camel-snake-kebab.core :refer [->kebab-case-string]]
-            [umlaut.core :as core]))
+            [umlaut.core :as core]
+            [umlaut.utils :as utils]))
 
 (defn ^:private is-type-or-enum?
   "Returns true if the passed node is a type or an enum."
-  [[_ [node-type node-info]]]
-  (or (= :type node-type)
-      (= :enum node-type)))
+  [[_ node]]
+  (or (utils/type? node) (utils/enum? node)))
 
 (defn ^:private has-simple-fields?
   "If the node passed is a type or interface, returns true if at least one field is
    free of params."
-  [[_ [node-type node-info]]]
-  (if (or (= :type node-type)
-          (= :interface node-type))
+  [[_ node]]
+  (if (or (utils/type? node)
+          (utils/interface? node))
     (reduce (fn [a i]
               (or a (not (:params? i))))
             false
-            (:fields node-info))
+            (-> node second :fields))
     true))
 
 (defn ^:private get-space-value
   "Given a field info and a key for the lang/datomic space, return its value."
   [{{:keys [others]} :field-annotations} k]
   (some->> others
-           (filter #(and (= "lang/datomic" (:space %))
-                         (= k (:key %))))
+           (utils/annotations-by-space-key "lang/datomic" k)
            first
            :value))
 
@@ -139,7 +138,7 @@
 (defn gen
   "Returns a clojure vector in the Datomic schema format"
   [files]
-  (let [umlaut (resolve-inheritance (core/main files))
+  (let [umlaut (utils/resolve-inheritance (core/main files))
         nodes (->> (:nodes umlaut)
                    (filter is-type-or-enum?)
                    (filter has-simple-fields?)

@@ -77,5 +77,3 @@
         :ret ::model/namespaces)
 
 (stest/instrument `main)
-
-; (read-folder ["test/philz/main.umlaut"])

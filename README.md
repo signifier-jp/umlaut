@@ -609,7 +609,7 @@ Datomic has a much finer-grained set of scalar types than Umlaut so the annotati
 ### Limitations and caveats of the Datomic generator:
 
 1. `:db.cardinality` will be automatically set to `:db.cardinality/many` for any cardinality different than `1`.
-2. Bidirecational relationships therefore are disencouraged or you'll end up not knowing which entity owns what. The recommendation is to use Datomic's reverse lookup in queries (i.e. `:person/_department` from the `department` entity).
+2. Bidirecational relationships therefore are discouraged or you'll end up not knowing which entity owns what. The recommendation is to use Datomic's reverse lookup in queries (i.e. `:person/_department` from the `department` entity).
 3. `:db/ident` is created by converting everything to kebab casing (an opinionated decision).
 4. `interfaces` are not created as there's no such concept in Datomic. All the inherited fields though are properly created. Feel free use interfaces if you have too many repeated fields and want to avoid repetition.
 5. Fields that have parameters (potential methods in some languages?) are totally ignored (as in, not generated at all). We wouldn't know what to do with them from a Datomic standpoint.
