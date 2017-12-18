@@ -4,7 +4,7 @@
             [clojure.spec.test :as stest]
             [umlaut.models :as model]
             [umlaut.parser :refer [parse]]
-            [umlaut.utils :refer [in? map-extend primitive-types]]))
+            [umlaut.utils :refer [in? primitive-types]]))
 
 (defn- read-parse [path]
   "Read all the umlaut files from a folder and parse its content"
@@ -13,8 +13,8 @@
        (flatten)
        (reduce (fn [acc filename]
                  (let [parsed (parse (slurp filename))]
-                   (map-extend acc {:nodes (parsed :nodes)
-                                    :diagrams (parsed :diagrams)}))) {})))
+                   {:nodes (merge (:nodes acc) (:nodes parsed))
+                    :diagrams (merge (:diagrams acc) (:diagrams parsed))})) {})))
 
 (defn- get-all-fields
   [parsed]
