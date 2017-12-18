@@ -36,15 +36,6 @@
   [node]
   (or (type? node) (interface? node) (enum? node)))
 
-(defn map-extend [base extension]
-  (reduce (fn [acc [key value]]
-            (if (contains? acc key)
-              (if (instance? clojure.lang.PersistentArrayMap value)
-                (assoc acc key (map-extend (base key) (extension key)))
-                (assoc acc key value))
-              (assoc acc key value)))
-          base (seq extension)))
-
 (defn seek [func coll]
   "Returns the first occurrence when func is true in coll"
   (first (filter func coll)))
