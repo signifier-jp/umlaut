@@ -1,7 +1,7 @@
 (ns umlaut.core
   (:gen-class)
-  (:require [clojure.spec :as s]
-            [clojure.spec.test :as stest]
+  (:require [clojure.spec.alpha :as s]
+            [clojure.spec.test.alpha :as stest]
             [umlaut.models :as model]
             [umlaut.parser :refer [parse]]
             [umlaut.utils :refer [in? primitive-types]]))

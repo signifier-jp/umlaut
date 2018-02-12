@@ -125,7 +125,7 @@
   "Returns a list with all the required libraries for a given type or enum (unions)"
   (concat
    (list
-    '[clojure.spec :as s]
+    '[clojure.spec.alpha :as s]
     [(symbol (:validators-namespace opts)) :refer :all])
    (build-type-dependencies type-obj opts)
    (if (union? type-obj)
