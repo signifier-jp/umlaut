@@ -1,9 +1,10 @@
-(defproject umlaut "0.5.1"
+(defproject umlaut "0.5.2"
   :description "A Clojure program that receives a schema and outputs code."
   :url "https://github.com/workco/umlaut"
   :license {:name "MIT License"
             :url "https://opensource.org/licenses/MIT"}
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
+                 [clojure-future-spec "1.9.0-beta4"]
                  [camel-snake-kebab "0.4.0"]
                  [instaparse "1.4.7"]]
   :plugins [[lein-cljfmt "0.5.6"]
