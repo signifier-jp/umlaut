@@ -586,6 +586,16 @@ type Person {
   }
 }
 ```
+### Datomic Components
+Non-primitive Umlaut types are translated to Datomic ref attributes. These can be tagged as components to facilitate transacting in nested maps, recursive retracts, etc.
+
+```
+type Person {
+  address: Address {
+    @lang/datomic isComponent true
+  }
+}
+```
 
 ### Fine-grained types
 

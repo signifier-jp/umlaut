@@ -110,3 +110,10 @@ enum RelationshipStatus {
   Single
   Married
 }
+
+type One {
+    employee:Employee {
+                             @lang/datomic isComponent true
+                         }
+
+}

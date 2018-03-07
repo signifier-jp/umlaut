@@ -93,6 +93,14 @@
     (cond-> m
       (= unique "true") (assoc :db/fulltext true))))
 
+(defn ^:private assoc-is-component
+  "Given a map and a field, returns a new map with the Datomic isComponent values if they
+  have been defined."
+  [m field]
+  (let [unique (get-space-value field "isComponent")]
+    (cond-> m
+            (= unique "true") (assoc :db/isComponent true))))
+
 (defn ^:private assoc-doc
   "Given a map and a field, returns a new map with the Datomic :db.doc if they
   have been defined."
@@ -111,6 +119,7 @@
       (assoc-unique field)
       (assoc-index field)
       (assoc-fulltext field)
+      (assoc-is-component field)
       (assoc-doc field)))
 
 (defmulti ^:private gen-node
